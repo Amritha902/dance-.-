@@ -1,9 +1,9 @@
 // Body tracking with MediaPipe Pose Landmarker, entirely in the browser.
-// The runtime (JS + WASM) is served by Mimic's own server from the pinned npm
-// package; only the model file comes from Google's model storage.
+// The runtime (JS + WASM) comes from the pinned npm package and the model is
+// cached by Mimic's own server, so everything loads from this origin.
 
 const VENDOR = '/vendor/mediapipe';
-const MODEL = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
+const MODEL = '/vendor/model/pose_landmarker_lite.task';
 
 let vision = null;
 async function fileset() {
@@ -51,7 +51,16 @@ const seekTo = (video, t) => new Promise((resolve) => {
  * @returns {{fps, aspect, duration, frames: Array<{t, lm}>}}
  */
 export async function trackVideo(video, { onProgress, signal } = {}) {
-  if (video.readyState < 1) await new Promise((r) => video.addEventListener('loadedmetadata', r, { once: true }));
+  if (video.readyState < 1) {
+    await new Promise((resolve, reject) => {
+      video.addEventListener('loadedmetadata', resolve, { once: true });
+      // A clip this browser can't decode (e.g. an iPhone HEVC .mov in desktop
+      // Chrome) fires an error instead; say what to do rather than hang.
+      video.addEventListener('error', () => reject(new Error(
+        "This browser can't play this video's format. iPhone clips: open Mimic in Safari, or set Settings → Camera → Formats → Most Compatible and record again.",
+      )), { once: true });
+    });
+  }
   const duration = video.duration;
   if (!Number.isFinite(duration) || duration <= 0) throw new Error('This video has no readable length.');
   const fps = duration > 120 ? 10 : 15;

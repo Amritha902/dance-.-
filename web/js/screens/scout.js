@@ -59,7 +59,13 @@ export function scoutSection() {
   async function load(force = false) {
     refresh.disabled = true;
     try {
-      const [cfg, data] = await Promise.all([api.config(), api.scout(force)]);
+      const cfg = await api.config();
+      if (!cfg.scout?.source) {
+        meta.textContent = 'off';
+        grid.replaceChildren(el('p', { class: 'muted small' }, 'Trend Scout reads YouTube through its official API. Add a free YOUTUBE_API_KEY on the server to turn it on (see README).'));
+        return;
+      }
+      const data = await api.scout(force);
       meta.textContent = `${data.source === 'youtube-api' ? 'YouTube Data API' : 'yt-dlp search'} · ${data.picker === 'claude' ? 'picked by Claude' : 'picked by rules'} · ${new Date(data.at).toLocaleString()}${data.stale ? ' · stale' : ''}`;
       grid.replaceChildren(...(data.groups.length
         ? data.groups.map((g) => trendCard(g, cfg.links))

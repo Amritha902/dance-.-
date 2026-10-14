@@ -93,6 +93,7 @@ Learner feedback after the build (round 1):
 - [x] Rename the working branch to `main`.
 - [x] Add related routines ("Learn it slower" in the Studio): tutorials, mirrored and slowed versions via the compliant search, ranked for learning; camera file names ask for the song. Tested (89 tests) and checked in Chromium.
 - [x] Limb feedback is a scale, not just red: yellow (25°+), orange (37°+), red (50°+), with a sky-blue base colour so the scale reads clearly. Tested and checked in Chromium.
+- [x] Reliability before the demo: the pose model is cached and served by our own server (downloaded once, then local); clips the browser can't decode (iPhone HEVC in desktop Chrome) get a clear fix instead of hanging; a tracking time estimate; Trend Scout and Learn it slower show a friendly note instead of erroring when no YouTube key is set. Tested (91 tests) and checked in Chromium.
 - [ ] Learner tries it on their own laptop and phone (with `ANTHROPIC_API_KEY`) and reports back.
 
 - [ ] Final review complete: feedback resolved and learner confirms ready to ship

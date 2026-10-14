@@ -22,7 +22,7 @@ Built for the Devpost **Build With AI: Basics** hackathon with the Devpost Learn
 
 ## Where AI is used, and why
 
-1. **Computer vision: MediaPipe Pose Landmarker**, running in your browser. It finds 33 body points per frame, in the dancer's video and in your webcam. Camera frames never leave your device.
+1. **Computer vision: MediaPipe Pose Landmarker**, running in your browser (its runtime comes from npm and the model is cached by Mimic's server, so it all loads from one place). It finds 33 body points per frame, in the dancer's video and in your webcam. Camera frames never leave your device.
 2. **Agentic coach: Claude (Anthropic SDK)**, an agent, not a single prompt. It gets five tools: `read_report`, `inspect_step`, `recall_history` (memory of your past runs on this routine), `find_cues` (retrieval from a hand-written teaching library), and `give_plan` (a strict schema, validated before you see it). Every number it can quote comes out of a tool, so it can't invent scores. If a request is declined, the API falls back server-side to another model. Without an API key, a rule-based coach answers instead, and the card says so.
 3. **Trend Scout: Claude as a judge** of which video in a song group is the original, from metadata only (title, channel, upload date, views), through one strict tool. Every pick is checked; anything that doesn't check out falls back to fixed rules (official signals, earliest upload, not a cover or tutorial).
 
@@ -70,7 +70,7 @@ Phones on the same Wi-Fi can open the computer's address (the room screen shows 
 npm test
 ```
 
-90 tests, run with Node's built-in runner, cover:
+91 tests, run with Node's built-in runner, cover:
 - link parsing, uploads, pose caching and path safety;
 - true mirroring, interpolation and framing;
 - step cutting, hookstep detection and tempo on routines with known answers;

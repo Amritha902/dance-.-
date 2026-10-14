@@ -30,12 +30,16 @@ export function preparingScreen(id) {
     const video = el('video', { src: mediaUrl(id), muted: true, playsInline: true, preload: 'auto', crossOrigin: 'anonymous' });
     video.className = 'offscreen';
     node.append(video);
+    const began = performance.now();
     try {
       const pose = await trackVideo(video, {
         signal: abort.signal,
         onProgress: (p, found) => {
           bar.style.width = `${Math.round(p * 100)}%`;
-          detail.textContent = `${Math.round(p * 100)}% · ${found} poses found`;
+          // A time estimate once there's enough progress to extrapolate from.
+          const elapsed = (performance.now() - began) / 1000;
+          const left = p > 0.05 ? Math.max(1, Math.round(elapsed * (1 - p) / p)) : null;
+          detail.textContent = `${Math.round(p * 100)}% · ${found} poses found${left ? ` · about ${left < 60 ? `${left}s` : `${Math.round(left / 60)} min`} left` : ''}`;
         },
       });
       stage.textContent = 'Saving…';

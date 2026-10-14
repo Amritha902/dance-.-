@@ -33,8 +33,13 @@ export function relatedSection(id) {
   async function load(q) {
     list.replaceChildren(el('p', { class: 'muted small' }, 'Searching…'));
     try {
-      const [cfg, out] = await Promise.all([api.config(), api.related(id, q)]);
+      const cfg = await api.config();
       links = cfg.links;
+      if (!cfg.scout?.source) {
+        list.replaceChildren(el('p', { class: 'muted small' }, 'Searching YouTube needs a free YOUTUBE_API_KEY on the server (see README).'));
+        return;
+      }
+      const out = await api.related(id, q);
       if (!q && out.query) input.value = out.query.replace(/ dance tutorial mirrored slow$/, '');
       list.replaceChildren(...(out.videos?.length
         ? out.videos.map(card)
