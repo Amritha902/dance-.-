@@ -50,6 +50,11 @@ Source: `scope.md > The POC Boundary`.
 - [ ] Steps are cut automatically at natural pauses; tapping a step loops it.
 - [ ] The hookstep (the part that repeats) is detected and opened first; if none is found, the whole clip is used.
 
+### Learn it slower (related routines)
+Added in final review at the learner's request.
+- [ ] Under the Studio, tutorials, mirrored and slowed versions of the same song, most helpful first; reactions dropped.
+- [ ] Uses the same compliant search as Trend Scout; the learner can type the song name.
+
 ### Battle
 - [ ] Camera permission is requested; if it's denied, a clear message explains why it's needed.
 - [ ] Scoring ignores where the learner stands and how far they are from the camera.

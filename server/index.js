@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { routinesRouter } from './routines.js';
 import { coachRouter } from './coach/route.js';
 import { attachParty } from './party.js';
+import { relatedRouter } from './related.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(here, '..');
@@ -21,6 +22,7 @@ export function createApp() {
   app.use('/vendor/mediapipe', express.static(path.join(root, 'node_modules', '@mediapipe', 'tasks-vision')));
   app.use(routinesRouter());
   app.use(coachRouter());
+  app.use(relatedRouter());
   return app;
 }
 

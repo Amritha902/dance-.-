@@ -26,23 +26,25 @@ export function isoSeconds(d) {
 }
 const ymd = (iso) => (iso ? iso.slice(0, 10).replace(/-/g, '') : null);
 
-export async function viaYouTubeApi(key, { fetchImpl = fetch, now = Date.now() } = {}) {
-  const api = 'https://www.googleapis.com/youtube/v3';
-  const after = new Date(now - WINDOW_DAYS * 864e5).toISOString();
+const API = 'https://www.googleapis.com/youtube/v3';
+
+// Official API: search.list for ids (100 quota units per query), then one
+// videos.list call per 50 ids (1 unit) for views and duration.
+export async function apiSearch(queries, key, { fetchImpl = fetch, publishedAfter = null, max = 12, order = 'viewCount' } = {}) {
   const ids = new Set();
-  for (const q of QUERIES) {
-    const u = new URL(`${api}/search`);
-    Object.entries({ part: 'snippet', type: 'video', q, order: 'viewCount', publishedAfter: after, maxResults: '12', key })
-      .forEach(([k, v]) => u.searchParams.set(k, v));
+  for (const q of queries) {
+    const u = new URL(`${API}/search`);
+    const params = { part: 'snippet', type: 'video', q, order, maxResults: String(max), key };
+    if (publishedAfter) params.publishedAfter = publishedAfter;
+    Object.entries(params).forEach(([k, v]) => u.searchParams.set(k, v));
     const res = await fetchImpl(u);
     if (!res.ok) throw new Error(`YouTube Data API search failed (${res.status}). Check YOUTUBE_API_KEY.`);
     for (const it of (await res.json()).items || []) if (it.id?.videoId) ids.add(it.id.videoId);
   }
-  // A second, cheap call (1 quota unit per 50 ids) for views and duration.
   const out = [];
   const list = [...ids];
   for (let i = 0; i < list.length; i += 50) {
-    const u = new URL(`${api}/videos`);
+    const u = new URL(`${API}/videos`);
     Object.entries({ part: 'snippet,statistics,contentDetails', id: list.slice(i, i + 50).join(','), key })
       .forEach(([k, v]) => u.searchParams.set(k, v));
     const res = await fetchImpl(u);
@@ -57,6 +59,21 @@ export async function viaYouTubeApi(key, { fetchImpl = fetch, now = Date.now() }
     }
   }
   return out;
+}
+
+export function viaYouTubeApi(key, { fetchImpl = fetch, now = Date.now() } = {}) {
+  return apiSearch(QUERIES, key, { fetchImpl, publishedAfter: new Date(now - WINDOW_DAYS * 864e5).toISOString() });
+}
+
+/**
+ * Search YouTube for one query through whichever source is allowed.
+ * Used by Related routines; same compliance rules as Trend Scout.
+ */
+export async function searchVideos(query, { n = 12, fetchImpl = fetch } = {}) {
+  const key = process.env.YOUTUBE_API_KEY;
+  if (key) return { source: 'youtube-api', videos: await apiSearch([query], key, { fetchImpl, max: n, order: 'relevance' }) };
+  if (ytdlpAllowed()) return { source: 'yt-dlp', videos: await ytdlpSearch(query, n) };
+  throw Object.assign(new Error('Searching YouTube needs a free YouTube Data API key: set YOUTUBE_API_KEY on the server.'), { code: 'NO_SOURCE' });
 }
 
 export async function viaYtdlp() {

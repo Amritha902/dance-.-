@@ -7,6 +7,7 @@ import { api, mediaUrl } from '../api.js';
 import { poseAt, routineBox, mirrorBox, sampleRoutine, cutSteps, findHook, estimateTempo } from '../pose/timeline.js';
 import { mirror } from '../pose/skeleton.js';
 import { drawFigure, fitCanvas } from '../draw.js';
+import { relatedSection } from './related.js';
 
 const SPEEDS = [0.25, 0.5, 0.75, 1];
 
@@ -153,6 +154,7 @@ export async function studioScreen(id) {
       el('div', { class: 'chips' }, ...speedBtns, mirrorBtn, stickBtn, loopBtn),
     ),
     el('div', { class: 'region-row' }, ...regionChips),
+    relatedSection(id),
   );
 
   function frame() {
