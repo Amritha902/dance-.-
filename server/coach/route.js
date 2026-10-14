@@ -7,6 +7,8 @@ import Anthropic from '@anthropic-ai/sdk';
 import { routineFile, readJson, writeJson, ROUTINE_ID } from '../store.js';
 import { runCoach, cleanReport, COACH_MODEL } from './agent.js';
 import { offlinePlan } from './offline.js';
+import { scout } from '../scout/index.js';
+import { sourceName, ytdlpAllowed } from '../scout/gather.js';
 
 // Credentials resolve the SDK's usual way: ANTHROPIC_API_KEY, or a profile
 // from `ant auth login`. MIMIC_COACH=offline forces the rule-based coach.
@@ -42,7 +44,20 @@ export function coachRouter() {
   });
 
   r.get('/api/config', (_req, res) => {
-    res.json({ coach: { enabled: coachEnabled(), model: COACH_MODEL, hasKey: !!process.env.ANTHROPIC_API_KEY } });
+    res.json({
+      coach: { enabled: coachEnabled(), model: COACH_MODEL, hasKey: !!process.env.ANTHROPIC_API_KEY },
+      links: ytdlpAllowed(),
+      scout: { source: sourceName() },
+    });
+  });
+
+  // Trend Scout: trending dances, each traced to its original choreography.
+  r.get('/api/scout', async (req, res) => {
+    try {
+      res.json(await scout({ refresh: req.query.refresh === '1' }));
+    } catch (e) {
+      res.status(e.code === 'NO_SOURCE' ? 503 : 502).json({ error: e.message });
+    }
   });
   return r;
 }

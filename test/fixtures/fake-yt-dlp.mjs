@@ -6,6 +6,7 @@ import { writeFileSync } from 'node:fs';
 const args = process.argv.slice(2);
 const url = args.at(-1);
 const id = (url.match(/v=([\w-]{11})/) || [])[1];
+// Search queries all return the same canned feed; de-duplication is the caller's job.
 
 if (id === 'failfailfai') {
   console.error('ERROR: [youtube] failfailfai: Video unavailable');

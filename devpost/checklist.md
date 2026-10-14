@@ -59,7 +59,7 @@ Build mode: fast
   Learner check: Do a battle, check kcal and your streak, then set your weight and see the estimate change.
   Commit: `Track calories and streaks, add leaderboards and settings`
 
-- [ ] **6. Trend Scout and your routines**
+- [x] **6. Trend Scout and your routines**
   Becomes usable: Home shows Trend Scout (one card per trending dance, with the original choreography picked and the reason shown) and "Your routines"; tapping one prepares or opens it.
   Why now: Gives first-time users something to tap. It depends only on slice 1.
   PRD ref: `prd.md > Trend Scout`, `prd.md > Screens and Layout`
@@ -111,3 +111,5 @@ Activity mode:
 - Battle now draws a live preview before GO (dancer frozen on the first pose, learner live) and throttles detection so it can't starve drawing. Both came out of slice-3 testing on a slow GPU.
 - The planned hands-on checkpoint after slice 3 moves into the final review: the learner asked for the build to run without stopping.
 - Slice 4 verification: the agent loop was tested against a scripted model (investigating, recovering from a bad call, rejecting an invalid plan, refusals, the request shape) and through the HTTP route, including memory across runs. The full battle → report → coach → Drill flow ran in Chromium with the offline coach. **The live Claude coach has not been run**: there's no API key in the build sandbox. The learner must check it with `ANTHROPIC_API_KEY` set.
+- Trend Scout gathers through the official YouTube Data API when `YOUTUBE_API_KEY` is set, and falls back to yt-dlp search only when yt-dlp is allowed. Added the `MIMIC_YTDLP=off` compliance switch, which turns off link downloads and scraping, after the learner asked for live, free fetching that follows the hackathon rules. Whether it's the default is the learner's decision (still open).
+- Slice 6 verification: unit tests for grouping, labels, the rule picker, Claude picks (an invalid pick falls back to rules) and API parsing; the route was tested with a stubbed search. Neither the YouTube Data API nor the live Claude picker has been called (no keys in the sandbox).

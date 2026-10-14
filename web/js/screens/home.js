@@ -3,6 +3,7 @@
 import { el, toast } from '../dom.js';
 import { api } from '../api.js';
 import { readLog, streakFrom } from '../fitness.js';
+import { scoutSection } from './scout.js';
 
 export function routineCard(r) {
   return el('a', { class: 'card', href: `#/learn/${r.id}` },
@@ -87,6 +88,13 @@ export function homeScreen() {
     ),
     statsStrip(),
     librarySection,
+    scoutSection(),
   );
+  // In compliance mode the server refuses link downloads; say so up front.
+  api.config().then((c) => {
+    if (c.links) return;
+    form.hidden = true;
+    node.querySelector('.or-row > span').textContent = 'Upload a dance clip you have the rights to:';
+  }).catch(() => {});
   return { node, mounted: () => input.focus() };
 }

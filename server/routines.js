@@ -11,6 +11,7 @@ import { randomBytes } from 'node:crypto';
 import { pipeline } from 'node:stream/promises';
 import { routineFile, readJson, writeJson, listRoutineIds, ROUTINE_ID } from './store.js';
 import { parseYouTubeId, fetchMeta, download } from './youtube.js';
+import { ytdlpAllowed } from './scout/gather.js';
 
 const MAX_UPLOAD = 200 * 1024 * 1024;
 const UPLOAD_TYPES = { 'video/mp4': 'mp4', 'video/webm': 'webm', 'video/quicktime': 'mov' };
@@ -58,6 +59,8 @@ export function routinesRouter() {
 
   // Paste a link. Idempotent: a routine already on disk is returned as-is.
   r.post('/api/routines', express.json(), async (req, res) => {
+    // Compliance mode (MIMIC_YTDLP=off): no downloading from YouTube at all.
+    if (!ytdlpAllowed()) return res.status(403).json({ error: 'Link downloads are switched off on this server. Upload a clip you have the rights to instead.' });
     const id = parseYouTubeId(req.body?.url);
     if (!id) return res.status(400).json({ error: "That doesn't look like a YouTube link." });
     const existing = await routineStatus(id);
