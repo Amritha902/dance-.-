@@ -1,6 +1,6 @@
 ---
 doc: prd
-status: draft
+status: approved
 ---
 
 # Mimic: Product Requirements
@@ -26,7 +26,7 @@ Source: `scope.md > The Core Loop`.
 - **Settings:** display name, body weight (for calories).
 
 ## Look and Feel
-Source: `scope.md > Inspiration & Identity`. **Assumption, to confirm in review:** warm, light paper-and-ink pages, with one bold accent colour; a dark stage for Battle so the stickmen glow; a serif display face for big numbers and an easy sans for UI. Game-like feedback (pop-ups, combo, confetti on S/A ranks) without clutter.
+Source: `scope.md > Inspiration & Identity`. Approved by the learner: warm, light paper-and-ink pages, with one bold accent colour; a dark stage for Battle so the stickmen glow; a serif display face for big numbers and an easy sans for UI. Game-like feedback (pop-ups, combo, confetti on S/A ranks) without clutter.
 
 ## Features and Behavior
 
@@ -107,5 +107,5 @@ Everything under Features and Behavior.
 - Multi-dancer or 3D tracking.
 
 ## Open Questions
-- **Name:** "Mimic" is a working title. The learner may rename it at any time.
-- **Look and feel:** the direction above is an assumption to confirm in review.
+- **Name:** resolved: the learner chose "Mimic".
+- **Look and feel:** resolved: the learner approved the direction above.

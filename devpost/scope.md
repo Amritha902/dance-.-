@@ -1,9 +1,9 @@
 ---
 doc: scope
-status: draft
+status: approved
 ---
 
-# Mimic (working title)
+# Mimic
 
 Paste a YouTube link to a trending dance. Learn it from a clean, mirrored stickman, then dance it on camera, where your wrong limbs light up red, and an AI coach tells you exactly what to fix.
 

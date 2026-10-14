@@ -1,0 +1,104 @@
+---
+doc: checklist
+status: draft
+---
+
+# Build Checklist
+
+Build mode: fast
+
+## Slices
+
+- [ ] **1. Paste a link and watch the dancer as a stickman**
+  Becomes usable: Paste a YouTube link → progress while it downloads and the dancer is tracked → Studio with the video and a stickman dancing in sync, with mirror and speed controls. A second visit opens instantly.
+  Why now: It's the spine every other feature stands on, and it carries the two biggest risks (yt-dlp downloads and MediaPipe tracking) right at the start. Bootstrapping is folded in here.
+  PRD ref: `prd.md > The Core Journey` (steps 1–3), `prd.md > Getting a routine`, `prd.md > Studio`
+  Spec ref: `spec.md > Server: app and storage`, `spec.md > Server: YouTube`, `spec.md > Server: routines API`, `spec.md > Client: pose modules`, `spec.md > Client: renderer`, `spec.md > Client: screens`, `spec.md > Look and Feel`
+  Build: package.json, Express server, storage, link parsing and yt-dlp download with progress, routine status and pose cache routes; web shell, router, Home (link box), Preparing (download + MediaPipe extraction), Studio (video + stickman in sync, mirror, speed); skeleton, interpolation and framing modules; stickman renderer.
+  Verify (mechanical): Unit tests for link parsing, mirroring and interpolation pass. The server starts; `POST /api/routines` with a bad link returns 400 and with a good link returns an id. In Chromium, a routine (video placed in the cache, since YouTube is blocked in this sandbox) is tracked by the real MediaPipe model, the poses are cached, and the Studio renders the stickman with no console errors.
+  Learner check: Run `npm start`, paste a dance link, and watch the stickman dance next to the video; toggle mirror and 0.5×.
+  Commit: `Paste a link, track the dancer, and learn from a synced stickman`
+
+- [ ] **2. Loop the hard part: steps and hookstep**
+  Becomes usable: The Studio opens on the hookstep, looping; the routine is cut into step chips you can tap to loop; you can drag a custom loop region.
+  Why now: Steps are the unit the battle report and the coach talk about, so they must exist before either.
+  PRD ref: `prd.md > Studio`
+  Spec ref: `spec.md > Client: pose modules` (timeline), `spec.md > Client: screens`
+  Build: Step cutting at motion pauses, hookstep by self-similarity, tempo estimate; timeline UI with chips and a draggable loop region.
+  Verify (mechanical): Unit tests on synthetic motion: steps cover the routine without gaps, a planted repeating phrase is found as the hookstep, and a motionless stretch is never chosen. Studio renders the chips in Chromium.
+  Learner check: Open a routine: does it start on the part everyone knows? Tap a step chip and check it loops.
+  Commit: `Cut routines into steps and open on the hookstep`
+
+- [ ] **3. Battle it on camera, with wrong limbs in red**
+  Becomes usable: Battle → camera → count-in → your stickman over the dancer's, live score, judgements, combo, and **any limb that's off turns red**; a basic results screen at the end.
+  Why now: This is the first half of the unique kernel.
+  PRD ref: `prd.md > The Core Journey` (steps 4–5), `prd.md > Battle`
+  Spec ref: `spec.md > Client: pose modules` (compare, tracker), `spec.md > Client: renderer`, `spec.md > Client: screens`
+  Build: Bone-direction scoring with true mirror handling, per-limb scores, live detection loop separate from the render loop, judgements, combo multiplier, rank, red-limb painting, results screen.
+  Verify (mechanical): Unit tests: a pose scores 100 against itself, a mirrored copy scores 100 against the mirrored reference, position and scale don't change the score, a rotated arm is the worst limb. In Chromium with a fake camera fed from a video with a person, the battle runs, judgements appear, and the results screen renders with no console errors.
+  Learner check: Battle a routine: deliberately hold one arm wrong and watch it turn red.
+  Commit: `Battle on camera with live scoring and red limbs`
+
+- [ ] **4. The AI coach tells you what to fix**
+  Becomes usable: Results show a per-step report and the coach card: headline, why, body cues, progress since last time, the tool trail, and a Drill button that opens the Studio on that step at that speed.
+  Why now: The second half of the unique kernel.
+  PRD ref: `prd.md > Results and the AI coach`, `prd.md > The Core Journey` (steps 5–6)
+  Spec ref: `spec.md > Server: coach agent`, `spec.md > Client: report and fitness`, `spec.md > External Services and Dependencies`
+  Build: Joint angles; per-step report; coach agent (tools, memory, retrieval, strict plan, sanitising, refusal fallback); cue library; offline coach; coach route with memory; coach card and Drill.
+  Verify (mechanical): Unit tests for joint angles, report bucketing (unseen steps are null), sanitising, joint readings, cue ranking, memory, and the full agent loop against a scripted model (investigates, recovers from a bad call, rejects an invalid plan, handles a refusal). The route returns an offline plan without a key and reports progress on the second run. The results screen renders the coach card in Chromium.
+  Learner check: With `ANTHROPIC_API_KEY` set, finish a battle and read the coach's plan; tap Drill.
+  Commit: `Add the AI coach agent with memory, retrieval and drill`
+
+- [ ] **5. Calories, streaks and the leaderboard**
+  Becomes usable: Live kcal in the battle HUD; kcal, intensity and streak on results; lifetime stats on Home; a per-routine leaderboard; Settings for name and weight.
+  Why now: Round out the battle loop before the side features.
+  PRD ref: `prd.md > Fitness`, `prd.md > Results and the AI coach` (leaderboard)
+  Spec ref: `spec.md > Client: report and fitness`, `spec.md > Server: routines API`, `spec.md > Data Model`
+  Build: Effort estimate (body-lengths/s → MET → kcal), fitness log and streak in localStorage, score routes, Settings screen.
+  Verify (mechanical): Unit tests: intensity is bounded and monotonic, kcal is linear in weight, the streak handles day and month boundaries. Score route round-trip over HTTP.
+  Learner check: Do a battle, check kcal and your streak, then set your weight and see the estimate change.
+  Commit: `Track calories and streaks, add leaderboards and settings`
+
+- [ ] **6. Trending feed and your routines**
+  Becomes usable: Home shows a Trending grid of current dance challenges and "Your routines"; tapping one prepares or opens it.
+  Why now: Gives first-time users something to tap. It depends only on slice 1.
+  PRD ref: `prd.md > Trending`, `prd.md > Screens and Layout`
+  Spec ref: `spec.md > Server: trending`, `spec.md > Server: YouTube`
+  Build: Trending search with a 6 h cache, library route, Home grids.
+  Verify (mechanical): Unit test for de-duplication and the cache; a route test with yt-dlp stubbed; Home renders both grids in Chromium.
+  Learner check: Open Home and tap a trending dance.
+  Commit: `Add trending dances and your routines to Home`
+
+- [ ] **7. Party: dance with friends**
+  Becomes usable: Create or join a room by code from several phones, the host picks the routine, everyone readies up, a synchronised battle with a live room leaderboard, then room results.
+  Why now: Last, because it's the biggest piece that isn't the kernel; if time runs short, this is what gets cut.
+  PRD ref: `prd.md > Party`
+  Spec ref: `spec.md > Server: party`, `spec.md > Client: screens`
+  Build: Room server over WebSocket (codes, players, ready, host routine, start time, scores, results), Party screens.
+  Verify (mechanical): A test drives two WebSocket clients through create → join → ready → start → scores → results. The lobby renders in Chromium.
+  Learner check: Open the app on your laptop and your phone (same Wi-Fi), make a room, join it, and battle together.
+  Commit: `Add party rooms for dancing with friends`
+
+## Hands-on Checkpoints
+
+- [ ] Early usable behavior explored: after slice 3 (link → stickman → battle with red limbs), on the learner's machine with a real dance link and camera
+- [ ] Final kick-the-tires exploration and feedback completed
+
+## Final Review
+
+- [ ] Final review complete: feedback resolved and learner confirms ready to ship
+
+## Code Tour and App Map
+
+- [ ] Learning activity complete: guided route, focused alternative, prior practice connected, or brief recap
+- [ ] Optional edit and transfer reflection addressed: offered/declined/already covered/not applicable as appropriate
+- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+
+Activity and evidence:
+Route and stops:
+Edit outcome:
+Reflection:
+Activity mode:
+
+## Revisions
+
