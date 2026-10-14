@@ -69,7 +69,7 @@ Build mode: fast
   Learner check: Open Home: for a dance you know, is the picked video really the original? Tap it.
   Commit: `Add Trend Scout: trending dances traced to their original choreography`
 
-- [ ] **7. Party: dance with friends**
+- [x] **7. Party: dance with friends**
   Becomes usable: Create or join a room by code from several phones, the host picks the routine, everyone readies up, a synchronised battle with a live room leaderboard, then room results.
   Why now: Last, because it's the biggest piece that isn't the kernel; if time runs short, this is what gets cut.
   PRD ref: `prd.md > Party`
@@ -113,3 +113,5 @@ Activity mode:
 - Slice 4 verification: the agent loop was tested against a scripted model (investigating, recovering from a bad call, rejecting an invalid plan, refusals, the request shape) and through the HTTP route, including memory across runs. The full battle → report → coach → Drill flow ran in Chromium with the offline coach. **The live Claude coach has not been run**: there's no API key in the build sandbox. The learner must check it with `ANTHROPIC_API_KEY` set.
 - Trend Scout gathers through the official YouTube Data API when `YOUTUBE_API_KEY` is set, and falls back to yt-dlp search only when yt-dlp is allowed. Added the `MIMIC_YTDLP=off` compliance switch, which turns off link downloads and scraping, after the learner asked for live, free fetching that follows the hackathon rules. Whether it's the default is the learner's decision (still open).
 - Slice 6 verification: unit tests for grouping, labels, the rule picker, Claude picks (an invalid pick falls back to rules) and API parsing; the route was tested with a stubbed search. Neither the YouTube Data API nor the live Claude picker has been called (no keys in the sandbox).
+- Slice 7 verification: a WebSocket test drives full rounds (create → join → pick → ready → synchronised start → live scores → results → again; host handover; late joiners refused; clock-sync ping). Two browser sessions on fake cameras played a full party round. Found and fixed: the entry form re-rendering mid-typing. Real phones need an HTTPS link for the camera; the room now says so and shows LAN addresses. This has not been tried on real phones.
+- The `/api/config` and `/api/scout` routes live in `server/coach/route.js`, next to the coach, rather than in their own files. It's an internal placement only.

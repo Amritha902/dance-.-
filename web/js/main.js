@@ -9,6 +9,7 @@ import { studioScreen } from './screens/studio.js';
 import { battleScreen } from './screens/battle.js';
 import { resultsScreen } from './screens/results.js';
 import { settingsScreen } from './screens/settings.js';
+import { partyScreen, partyPlayScreen } from './screens/party.js';
 
 const routes = [
   [/^#?\/?$/, () => homeScreen()],
@@ -17,6 +18,8 @@ const routes = [
   [/^#\/battle\/([\w-]{11})$/, (id) => battleScreen(id)],
   [/^#\/results\/([\w-]{11})$/, (id) => resultsScreen(id)],
   [/^#\/settings$/, () => settingsScreen()],
+  [/^#\/party$/, () => partyScreen()],
+  [/^#\/party\/play\/([\w-]{11})$/, (id) => partyPlayScreen(id)],
 ];
 
 export function registerRoute(pattern, make) {
@@ -36,7 +39,7 @@ function shell(content) {
   );
 }
 
-const extraNav = [['Settings', '#/settings']];
+const extraNav = [['Party', '#/party'], ['Settings', '#/settings']];
 export const addNav = (label, href) => extraNav.push([label, href]);
 const navLinks = () => extraNav.map(([label, href]) => el('a', { href }, label));
 

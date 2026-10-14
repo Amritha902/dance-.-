@@ -8,6 +8,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { routinesRouter } from './routines.js';
 import { coachRouter } from './coach/route.js';
+import { attachParty } from './party.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(here, '..');
@@ -25,6 +26,7 @@ export function createApp() {
 
 export function start(port = Number(process.env.PORT) || 4173) {
   const server = createServer(createApp());
+  attachParty(server);
   return new Promise((resolve) => server.listen(port, () => resolve(server)));
 }
 

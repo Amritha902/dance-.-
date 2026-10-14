@@ -3,6 +3,7 @@
 // then appends the run to memory so the next plan can say what improved.
 
 import express from 'express';
+import { networkInterfaces } from 'node:os';
 import Anthropic from '@anthropic-ai/sdk';
 import { routineFile, readJson, writeJson, ROUTINE_ID } from '../store.js';
 import { runCoach, cleanReport, COACH_MODEL } from './agent.js';
@@ -47,6 +48,9 @@ export function coachRouter() {
     res.json({
       coach: { enabled: coachEnabled(), model: COACH_MODEL, hasKey: !!process.env.ANTHROPIC_API_KEY },
       links: ytdlpAllowed(),
+      // Addresses other devices on the same network can reach this server at.
+      lan: Object.values(networkInterfaces()).flat()
+        .filter((n) => n && n.family === 'IPv4' && !n.internal).map((n) => n.address),
       scout: { source: sourceName() },
     });
   });

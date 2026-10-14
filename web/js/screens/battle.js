@@ -19,7 +19,7 @@ import { createBurn, weightKg, intensityLabel } from '../fitness.js';
 const WRONG = '#ff2d55';
 const flipX = (lm) => lm && lm.map(([x, y, z, v]) => [1 - x, y, z, v]);
 
-export async function battleScreen(id, { onFrame, onFinish, region: forced } = {}) {
+export async function battleScreen(id, { onFrame, onFinish, region: forced, startAt = null } = {}) {
   let meta, pose;
   try {
     [meta, pose] = await Promise.all([api.status(id), api.pose(id)]);
@@ -29,8 +29,9 @@ export async function battleScreen(id, { onFrame, onFinish, region: forced } = {
   }
   const frames = pose.frames;
   const duration = pose.duration;
-  let region = forced;
-  if (!region) {
+  // 'default' (party) ignores this device's saved choice so every phone dances the same bars.
+  let region = forced === 'default' ? null : forced;
+  if (!region && forced !== 'default') {
     try { region = JSON.parse(sessionStorage.getItem('mimic.battleRegion') || 'null'); } catch { /* none */ }
     if (region?.id !== id) region = null;
   }
@@ -147,7 +148,7 @@ export async function battleScreen(id, { onFrame, onFinish, region: forced } = {
     meterFill.className = smooth >= 70 ? 'good' : smooth >= 45 ? 'warn' : '';
     scoreEl.textContent = judge.state.score.toLocaleString();
     comboEl.textContent = judge.state.combo >= 3 ? `${judge.state.combo} combo · ${multiplier(judge.state.combo)}×` : '';
-    onFrame?.({ t, cmp, you });
+    onFrame?.({ t, cmp, you, score: judge.state.score, combo: judge.state.combo });
     raf = requestAnimationFrame(draw);
   }
 
@@ -198,6 +199,12 @@ export async function battleScreen(id, { onFrame, onFinish, region: forced } = {
     running = true;
     detectLoop();
     raf = requestAnimationFrame(draw);
+    // In a party, every phone's count-in ends at the same agreed instant.
+    const COUNT = 4 * 650;
+    if (startAt) {
+      const wait = startAt - COUNT - Date.now();
+      if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+    }
     for (const n of ['3', '2', '1', 'GO']) {
       countIn.textContent = n;
       countIn.classList.add('show');
@@ -206,6 +213,8 @@ export async function battleScreen(id, { onFrame, onFinish, region: forced } = {
       countIn.classList.remove('show');
       if (!running) return;
     }
+    // Arrived late to a party start? Skip ahead so you're on the same beat as everyone.
+    if (startAt) refVideo.currentTime = Math.min(region.end - 0.5, region.start + Math.max(0, (Date.now() - startAt) / 1000));
     await refVideo.play().catch(() => { refVideo.muted = true; return refVideo.play(); });
     live = true;
   }
