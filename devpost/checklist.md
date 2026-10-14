@@ -29,7 +29,7 @@ Build mode: fast
   Learner check: Open a routine: does it start on the part everyone knows? Tap a step chip and check it loops.
   Commit: `Cut routines into steps and open on the hookstep`
 
-- [ ] **3. Battle it on camera, with wrong limbs in red**
+- [x] **3. Battle it on camera, with wrong limbs in red**
   Becomes usable: Battle → camera → count-in → your stickman over the dancer's, live score, judgements, combo, and **any limb that's off turns red**; a basic results screen at the end.
   Why now: This is the first half of the unique kernel.
   PRD ref: `prd.md > The Core Journey` (steps 4–5), `prd.md > Battle`
@@ -107,4 +107,6 @@ Activity mode:
 - Added clip upload alongside YouTube links. Reading the official rules showed that third-party terms and the no-copyrighted-music rule for the demo video make an upload path necessary.
 - Trending became Trend Scout, which finds the original choreography behind each trend, at the learner's request for a "live backbone".
 - MediaPipe is served from the npm package instead of a CDN: the CDN was unreachable in the build sandbox, and self-hosting removes a runtime dependency.
-
+- Slice 3 verification: the Battle was driven in Chromium with a fake camera fed from video files. Same clip: 7/7 PERFECT, rank S, joint angles within ~4°. Mirrored clip in face-to-face mode: A (correct mirror copy). Rotated clip: every limb red, all MISS. Live tracking on a real webcam still needs the learner's machine.
+- Battle now draws a live preview before GO (dancer frozen on the first pose, learner live) and throttles detection so it can't starve drawing. Both came out of slice-3 testing on a slow GPU.
+- The planned hands-on checkpoint after slice 3 moves into the final review: the learner asked for the build to run without stopping.

@@ -139,6 +139,13 @@ export async function studioScreen(id) {
           `${steps.length} steps`, hook ? `hookstep ${hook.period.toFixed(1)}s` : 'no clear hookstep',
         ].filter(Boolean).join(' · ')),
       ),
+      el('button', {
+        class: 'btn primary',
+        onclick: () => {
+          sessionStorage.setItem('mimic.battleRegion', JSON.stringify({ id, start: region.start, end: region.end }));
+          location.hash = `#/battle/${id}`;
+        },
+      }, 'Battle this →'),
     ),
     panes,
     el('div', { class: 'transport' },

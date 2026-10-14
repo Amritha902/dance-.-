@@ -6,11 +6,15 @@ import { el, $ } from './dom.js';
 import { homeScreen } from './screens/home.js';
 import { preparingScreen } from './screens/preparing.js';
 import { studioScreen } from './screens/studio.js';
+import { battleScreen } from './screens/battle.js';
+import { resultsScreen } from './screens/results.js';
 
 const routes = [
   [/^#?\/?$/, () => homeScreen()],
   [/^#\/prep\/([\w-]{11})$/, (id) => preparingScreen(id)],
   [/^#\/learn\/([\w-]{11})$/, (id) => studioScreen(id)],
+  [/^#\/battle\/([\w-]{11})$/, (id) => battleScreen(id)],
+  [/^#\/results\/([\w-]{11})$/, (id) => resultsScreen(id)],
 ];
 
 export function registerRoute(pattern, make) {
