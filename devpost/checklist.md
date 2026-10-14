@@ -102,13 +102,13 @@ Learner feedback after the build (round 1):
 
 - [ ] Learning activity complete: guided route, focused alternative, prior practice connected, or brief recap
 - [ ] Optional edit and transfer reflection addressed: offered/declined/already covered/not applicable as appropriate
-- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [x] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
-Activity and evidence:
-Route and stops:
-Edit outcome:
-Reflection:
-Activity mode:
+Activity and evidence: Pending with the learner. The app map (made at fa877f6) is ready; the learning activity itself hasn't happened yet.
+Route and stops: Reference route in the map (not yet walked through): web/js/screens/battle.js draw() → web/js/pose/compare.js SEVERITY/compare → web/js/draw.js drawFigure (tint).
+Edit outcome: Not yet offered.
+Reflection: Not yet offered.
+Activity mode: To be decided with the learner (focused alternative suggested: they plan first).
 
 ## Revisions
 
