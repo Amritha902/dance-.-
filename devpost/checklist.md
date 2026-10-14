@@ -86,6 +86,13 @@ Build mode: fast
 
 ## Final Review
 
+Learner feedback after the build (round 1):
+- [x] Make compliance mode the default: `MIMIC_YTDLP=on` to opt in; caches from a source that's switched off are not served. Tested.
+- [x] Make the stickman cute and unlike a normal stick figure: chibi character with a face, blush, a bean body, gummy limbs and an "oops" face. Checked in Chromium.
+- [x] Design for iPhone and Android: installable PWA (manifest, service worker, icons, iPhone meta), phone-first layout with a bottom tab bar, a tap to start for iOS sound, camera-roll uploads. Checked in Chromium emulating an iPhone 13 and a Pixel 7 (install pieces, layout, a full battle). Physical phones not yet tried.
+- [x] Rename the working branch to `main`.
+- [ ] Learner tries it on their own laptop and phone (with `ANTHROPIC_API_KEY`) and reports back.
+
 - [ ] Final review complete: feedback resolved and learner confirms ready to ship
 
 ## Code Tour and App Map
@@ -115,3 +122,4 @@ Activity mode:
 - Slice 6 verification: unit tests for grouping, labels, the rule picker, Claude picks (an invalid pick falls back to rules) and API parsing; the route was tested with a stubbed search. Neither the YouTube Data API nor the live Claude picker has been called (no keys in the sandbox).
 - Slice 7 verification: a WebSocket test drives full rounds (create → join → pick → ready → synchronised start → live scores → results → again; host handover; late joiners refused; clock-sync ping). Two browser sessions on fake cameras played a full party round. Found and fixed: the entry form re-rendering mid-typing. Real phones need an HTTPS link for the camera; the room now says so and shows LAN addresses. This has not been tried on real phones.
 - The `/api/config` and `/api/scout` routes live in `server/coach/route.js`, next to the coach, rather than in their own files. It's an internal placement only.
+- Final-review round 1 added the PWA and mobile layout (Platforms, in the PRD and spec), the chibi character, and compliance mode as the default, all at the learner's request. "Patina" in the request was read as PWA; this needs confirming with the learner.

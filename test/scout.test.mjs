@@ -112,6 +112,7 @@ before(async () => {
   process.env.YTDLP_BIN = path.join(here, 'fixtures', 'fake-yt-dlp.mjs');
   process.env.FAKE_SEARCH = JSON.stringify(FEED.map((x) => ({ id: x.id, title: x.title, channel: x.channel, upload_date: x.uploaded, view_count: x.views })));
   process.env.MIMIC_COACH = 'offline'; // rules picker; Claude's path is tested above
+  process.env.MIMIC_YTDLP = 'on'; // opt in, so the keyless search path can be tested
   delete process.env.YOUTUBE_API_KEY;
   const { start } = await import('../server/index.js');
   server = await start(0);
@@ -131,15 +132,19 @@ test('GET /api/scout returns trends with originals, reasons and labelled others;
   assert.equal(b.at, a.at, 'served from the cache');
 });
 
-test('compliance mode: no link downloads, no scraping', async () => {
-  process.env.MIMIC_YTDLP = 'off';
+test('compliance mode is the default: no link downloads, no scraping', async () => {
+  delete process.env.MIMIC_YTDLP;
   try {
     const link = await fetch(`${base}/api/routines`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: 'dQw4w9WgXcQ' }) });
     assert.equal(link.status, 403);
     const cfg = await fetch(`${base}/api/config`).then((r) => r.json());
     assert.equal(cfg.links, false);
     assert.equal(cfg.scout.source, null);
+    // Results cached from yt-dlp earlier are not served once it's switched off.
+    const scout = await fetch(`${base}/api/scout`);
+    assert.equal(scout.status, 503);
+    assert.match((await scout.json()).error, /YOUTUBE_API_KEY/);
   } finally {
-    delete process.env.MIMIC_YTDLP;
+    process.env.MIMIC_YTDLP = 'on';
   }
 });

@@ -1,0 +1,19 @@
+{
+  "name": "Mimic: learn the move",
+  "short_name": "Mimic",
+  "description": "Learn any dance from a cute mirrored stickman, battle it on camera with live red-limb feedback, and get coached by AI.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf6ee",
+  "theme_color": "#ff4f2e",
+  "categories": ["entertainment", "health", "fitness", "education"],
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

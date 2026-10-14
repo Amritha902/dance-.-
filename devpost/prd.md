@@ -25,8 +25,11 @@ Source: `scope.md > The Core Loop`.
 - **Party:** create or join with a 4-letter code; lobby with players and ready states; host picks the routine; synchronised battle; live room leaderboard; room results.
 - **Settings:** display name, body weight (for calories).
 
+## Platforms
+Added in final review at the learner's request: designed for **iPhone and Android** from one codebase as an installable PWA (Home Screen icon, full-screen, phone-first layout with a bottom tab bar). A native App Store build is out of scope for the proof of concept.
+
 ## Look and Feel
-Source: `scope.md > Inspiration & Identity`. Approved by the learner: warm, light paper-and-ink pages, with one bold accent colour; a dark stage for Battle so the stickmen glow; a serif display face for big numbers and an easy sans for UI. Game-like feedback (pop-ups, combo, confetti on S/A ranks) without clutter.
+Source: `scope.md > Inspiration & Identity`. Approved by the learner: warm, light paper-and-ink pages, with one bold accent colour; a dark stage for Battle so the stickmen glow; a serif display face for big numbers and an easy sans for UI. Game-like feedback (pop-ups, combo, confetti on S/A ranks) without clutter. **The stickman is a cute chibi character**, not a plain stick figure: a big round head with eyes, blush and a smile that turns to where the dancer looks, a soft bean body, and rounded gummy limbs. Your figure's face turns to "oops" when you're off (learner request in final review).
 
 ## Features and Behavior
 
@@ -91,6 +94,7 @@ Source: `scope.md > The Unique Kernel`.
 - **Privacy:** camera frames and poses never leave the browser; the coach gets only step numbers.
 
 ## Product Decisions
+- **Compliance mode is the default** (learner decision in final review): no YouTube downloads or scraping unless the server opts in with `MIMIC_YTDLP=on`. Learning is from uploaded clips; Trend Scout reads trends through the official API.
 - **YouTube link *and* upload:** the link is how people find dances; upload was added after reading the official rules (third-party terms, and no copyrighted music in the demo video), so the demo can use a clip the learner has rights to.
 - **Trend Scout finds the original choreography**, as asked by the learner: a live backbone that shows how it decides.
 - **Demo moment = red limbs + coach**, as chosen by the learner.

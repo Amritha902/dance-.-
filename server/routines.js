@@ -14,7 +14,8 @@ import { parseYouTubeId, fetchMeta, download } from './youtube.js';
 import { ytdlpAllowed } from './scout/gather.js';
 
 const MAX_UPLOAD = 200 * 1024 * 1024;
-const UPLOAD_TYPES = { 'video/mp4': 'mp4', 'video/webm': 'webm', 'video/quicktime': 'mov' };
+// iPhones record .mov (video/quicktime) and sometimes .m4v; Android records mp4.
+const UPLOAD_TYPES = { 'video/mp4': 'mp4', 'video/webm': 'webm', 'video/quicktime': 'mov', 'video/x-m4v': 'm4v' };
 
 // Downloads in flight. Disk is the real record; this only carries progress.
 const jobs = new Map(); // id -> { progress, error }
@@ -59,7 +60,7 @@ export function routinesRouter() {
 
   // Paste a link. Idempotent: a routine already on disk is returned as-is.
   r.post('/api/routines', express.json(), async (req, res) => {
-    // Compliance mode (MIMIC_YTDLP=off): no downloading from YouTube at all.
+    // Compliance mode (the default): no downloading from YouTube unless MIMIC_YTDLP=on.
     if (!ytdlpAllowed()) return res.status(403).json({ error: 'Link downloads are switched off on this server. Upload a clip you have the rights to instead.' });
     const id = parseYouTubeId(req.body?.url);
     if (!id) return res.status(400).json({ error: "That doesn't look like a YouTube link." });

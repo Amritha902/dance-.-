@@ -3,9 +3,9 @@
 //  1. The official YouTube Data API v3 (free key, free daily quota), used
 //     whenever YOUTUBE_API_KEY is set. This is the approved way to read
 //     YouTube: search for recent dance videos, then fetch their stats.
-//  2. yt-dlp search, used only when there's no key and yt-dlp is allowed
-//     (MIMIC_YTDLP isn't "off"). Keyless, but it reads YouTube's pages
-//     directly, so it's off in compliance mode.
+//  2. yt-dlp search, used only when there's no key AND yt-dlp has been
+//     explicitly switched on (MIMIC_YTDLP=on). Keyless, but it reads
+//     YouTube's pages directly, so it is off by default (compliance mode).
 
 import { search as ytdlpSearch } from '../youtube.js';
 
@@ -14,7 +14,9 @@ export const QUERIES = [
 ];
 const WINDOW_DAYS = 21;
 
-export const ytdlpAllowed = () => process.env.MIMIC_YTDLP !== 'off';
+// Compliance mode is the default: no YouTube downloads and no scraping unless
+// the person running the server opts in with MIMIC_YTDLP=on.
+export const ytdlpAllowed = () => process.env.MIMIC_YTDLP === 'on';
 export const sourceName = () => (process.env.YOUTUBE_API_KEY ? 'youtube-api' : ytdlpAllowed() ? 'yt-dlp' : null);
 
 // ISO 8601 duration (PT1M23S) → seconds.
@@ -69,5 +71,5 @@ export async function gather(opts = {}) {
   const key = process.env.YOUTUBE_API_KEY;
   if (key) return { source: 'youtube-api', videos: await viaYouTubeApi(key, opts) };
   if (ytdlpAllowed()) return { source: 'yt-dlp', videos: await viaYtdlp() };
-  throw Object.assign(new Error('Trend Scout needs a free YouTube Data API key (YOUTUBE_API_KEY) in compliance mode.'), { code: 'NO_SOURCE' });
+  throw Object.assign(new Error('Trend Scout needs a free YouTube Data API key: set YOUTUBE_API_KEY on the server.'), { code: 'NO_SOURCE' });
 }

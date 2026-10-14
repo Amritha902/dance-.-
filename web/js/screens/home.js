@@ -35,7 +35,8 @@ export function homeScreen() {
     autocomplete: 'off', spellcheck: false,
   });
   const go = el('button', { class: 'btn primary', type: 'submit' }, 'Learn it');
-  const file = el('input', { type: 'file', accept: 'video/mp4,video/webm,video/quicktime', hidden: true });
+  // video/* opens the camera roll on iPhone and the gallery on Android.
+  const file = el('input', { type: 'file', accept: 'video/*', hidden: true });
   const uploadBtn = el('button', { class: 'btn ghost', type: 'button', onclick: () => file.click() }, 'Upload a clip');
 
   const form = el('form', {

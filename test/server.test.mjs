@@ -12,6 +12,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const dir = mkdtempSync(path.join(tmpdir(), 'mimic-'));
 process.env.MIMIC_DATA = dir;
 process.env.YTDLP_BIN = path.join(here, 'fixtures', 'fake-yt-dlp.mjs');
+process.env.MIMIC_YTDLP = 'on'; // link downloads are opt-in
 
 const { start } = await import('../server/index.js');
 const { parseYouTubeId } = await import('../server/youtube.js');

@@ -3,6 +3,7 @@
 // (stopping cameras, animation loops and timers).
 
 import { el, $ } from './dom.js';
+import { registerServiceWorker } from './pwa.js';
 import { homeScreen } from './screens/home.js';
 import { preparingScreen } from './screens/preparing.js';
 import { studioScreen } from './screens/studio.js';
@@ -29,6 +30,16 @@ export function registerRoute(pattern, make) {
 const app = $('#app');
 let current = null;
 
+// Phones get a bottom tab bar (thumb reach, like a native app); larger
+// screens keep links in the top bar.
+const TABS = [['Home', '#/', '⌂'], ['Party', '#/party', '✦'], ['Settings', '#/settings', '⚙']];
+function tabbar() {
+  const here = location.hash || '#/';
+  return el('nav', { class: 'tabbar' }, ...TABS.map(([label, href, glyph]) =>
+    el('a', { href, class: (href === '#/' ? here === '#/' || here === '#' : here.startsWith(href)) ? 'on' : '' },
+      el('span', { class: 'glyph', 'aria-hidden': 'true' }, glyph), label)));
+}
+
 function shell(content) {
   return el('div', { class: 'shell' },
     el('header', { class: 'topbar' },
@@ -36,6 +47,7 @@ function shell(content) {
       el('nav', { class: 'nav' }, ...navLinks()),
     ),
     el('main', { class: 'page' }, content),
+    tabbar(),
   );
 }
 
@@ -61,5 +73,6 @@ async function render() {
 }
 
 addEventListener('hashchange', render);
+registerServiceWorker();
 // Later modules register routes before the first render.
 queueMicrotask(render);

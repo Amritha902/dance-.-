@@ -43,8 +43,11 @@ Rationale: no build step keeps it fast to change; the learner chose a YouTube li
 - Demo recording: paste a trending dance link → Studio (mirror, 0.5×, loop) → Battle → results with the coach card → Drill.
 - Deployment: not planned. The required demo video and public GitHub repo are the deliverables.
 
+## Mobile app (PWA)
+Added in final review. `web/manifest.webmanifest` (standalone, portrait, icons including maskable), `web/sw.js` (app shell cached and refreshed in the background; `/vendor` cached on first use; `/api`, `/media` and `/party` are never cached), `web/js/pwa.js` (Android install prompt, iPhone Add-to-Home-Screen tip, service worker registration), iPhone meta tags and touch icon, safe-area insets, `100dvh` layouts, 16 px inputs, and `accept="video/*"` for camera-roll uploads (`.mov`/`.m4v` accepted). Battle waits for a tap before starting (iOS only plays sound after a gesture); party starts stay on time and the tap is optional. Phones need HTTPS for the camera: a tunnel or a deployed server.
+
 ## Look and Feel
-From `prd.md > Look and Feel`. Light warm "paper" background (#faf6ee), ink text (#1f1a15), one accent (hot coral #ff4f2e), good = green, warn = amber, and **red limbs in #ff2d55** so they read as an alert on the dark stage (#141110). Serif display (Fraunces) for numbers and headlines, Inter for UI. Rounded cards, generous spacing. Battle is dark and glowy; everything else is calm. Short, encouraging copy.
+From `prd.md > Look and Feel`. Light warm "paper" background (#faf6ee), ink text (#1f1a15), one accent (hot coral #ff4f2e), good = green, warn = amber, and **red limbs in #ff2d55** so they read as an alert on the dark stage (#141110). Serif display (Fraunces) for numbers and headlines, Inter for UI. Rounded cards, generous spacing. Battle is dark and glowy; everything else is calm. Short, encouraging copy. The dancer is drawn as a chibi character (`web/js/draw.js`): head ≈ 0.8 × shoulder width, eyes with sparkles, blush, a smile or an "oops" mouth, a bean body, and limbs with a highlight. In Battle, the dancer is a faceless translucent ghost and you are the character.
 
 ## Components
 

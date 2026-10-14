@@ -113,8 +113,9 @@ export async function battleScreen(id, { onFrame, onFinish, region: forced, star
     ctx.clearRect(0, 0, w, h);
 
     const ref = poseAt(frames, t);
+    // The dancer is a faceless ghost to follow; you are the character.
     drawFigure(ctx, mirrored ? mirror(ref) : ref, {
-      w, h, box: refBox, aspect: pose.aspect, color: 'rgba(246, 239, 228, .42)', width: Math.max(6, w * 0.016),
+      w, h, box: refBox, aspect: pose.aspect, color: '#fff3e6', alpha: 0.32, mood: 'none',
     });
 
     let cmp = null;
@@ -129,7 +130,7 @@ export async function battleScreen(id, { onFrame, onFinish, region: forced, star
       const good = cmp && cmp.score >= 70;
       drawFigure(ctx, flipX(you), {
         w, h, box: youBox, aspect: camAspect, glow: true, limbColors,
-        color: good ? '#2fe08a' : '#ffb020', width: Math.max(5, w * 0.012),
+        color: good ? '#7cf0b8' : '#ffc46b', mood: cmp?.wrong.length ? 'oops' : 'happy',
       });
       wrongEl.textContent = cmp?.wrong.length ? `Fix: ${cmp.wrong.join(', ')}` : '';
     } else {
@@ -194,11 +195,25 @@ export async function battleScreen(id, { onFrame, onFinish, region: forced, star
     if (refVideo.readyState < 1) await new Promise((r) => refVideo.addEventListener('loadedmetadata', r, { once: true }));
     refVideo.currentTime = region.start;
     refVideo.playbackRate = 1;
-    banner.remove();
 
     running = true;
     detectLoop();
     raf = requestAnimationFrame(draw);
+
+    // Phones (iPhone especially) only allow sound after a tap, and a party
+    // start is already scheduled, so: solo waits for a tap here; party taps
+    // are optional and the dance starts on time either way (muted if needed).
+    banner.replaceChildren(el('button', { class: 'btn primary big' }, startAt ? 'Tap for sound' : 'Tap to start'),
+      el('small', {}, 'Stand back until your whole body is in the camera.'));
+    banner.classList.add('tap');
+    const tapped = new Promise((resolve) => banner.querySelector('button').addEventListener('click', () => {
+      refVideo.play().then(() => refVideo.pause()).catch(() => {}); // unlock audio inside the gesture
+      resolve();
+    }, { once: true }));
+    if (startAt) Promise.race([tapped, new Promise((r) => setTimeout(r, Math.max(0, startAt - 2600 - Date.now())))]).then(() => banner.remove());
+    else await tapped;
+    banner.remove();
+    if (!running) return;
     // In a party, every phone's count-in ends at the same agreed instant.
     const COUNT = 4 * 650;
     if (startAt) {

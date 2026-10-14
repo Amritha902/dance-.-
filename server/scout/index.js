@@ -3,7 +3,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import path from 'node:path';
 import { dataDir, readJson, writeJson } from '../store.js';
-import { gather } from './gather.js';
+import { gather, sourceName } from './gather.js';
 import { groupBySong } from './labels.js';
 import { pickByRules } from './rules.js';
 import { pickWithClaude } from './pick.js';
@@ -49,7 +49,10 @@ export async function runScout({ gatherImpl = gather } = {}) {
 }
 
 export async function scout({ refresh = false, ...opts } = {}) {
-  const cached = await readJson(file());
+  let cached = await readJson(file());
+  // Never serve results from a source that's now switched off (e.g. yt-dlp
+  // results cached before compliance mode was turned on).
+  if (cached && cached.source !== sourceName()) cached = null;
   const age = cached ? Date.now() - Date.parse(cached.at) : Infinity;
   if (cached && (age < TTL) && !(refresh && age > MIN_REFRESH)) return cached;
   try {
