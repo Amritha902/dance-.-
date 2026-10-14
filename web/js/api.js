@@ -23,6 +23,8 @@ export const api = {
   library: () => call('GET', '/api/routines'),
   pose: (id) => call('GET', `/api/routines/${id}/pose`),
   savePose: (id, pose) => call('PUT', `/api/routines/${id}/pose`, pose),
+  coach: (id, report) => call('POST', `/api/routines/${id}/coach`, { report }),
+  config: () => call('GET', '/api/config'),
 };
 
 export const mediaUrl = (id) => `/media/${id}`;

@@ -39,7 +39,7 @@ Build mode: fast
   Learner check: Battle a routine: deliberately hold one arm wrong and watch it turn red.
   Commit: `Battle on camera with live scoring and red limbs`
 
-- [ ] **4. The AI coach tells you what to fix**
+- [x] **4. The AI coach tells you what to fix**
   Becomes usable: Results show a per-step report and the coach card: headline, why, body cues, progress since last time, the tool trail, and a Drill button that opens the Studio on that step at that speed.
   Why now: The second half of the unique kernel.
   PRD ref: `prd.md > Results and the AI coach`, `prd.md > The Core Journey` (steps 5–6)
@@ -110,3 +110,4 @@ Activity mode:
 - Slice 3 verification: the Battle was driven in Chromium with a fake camera fed from video files. Same clip: 7/7 PERFECT, rank S, joint angles within ~4°. Mirrored clip in face-to-face mode: A (correct mirror copy). Rotated clip: every limb red, all MISS. Live tracking on a real webcam still needs the learner's machine.
 - Battle now draws a live preview before GO (dancer frozen on the first pose, learner live) and throttles detection so it can't starve drawing. Both came out of slice-3 testing on a slow GPU.
 - The planned hands-on checkpoint after slice 3 moves into the final review: the learner asked for the build to run without stopping.
+- Slice 4 verification: the agent loop was tested against a scripted model (investigating, recovering from a bad call, rejecting an invalid plan, refusals, the request shape) and through the HTTP route, including memory across runs. The full battle → report → coach → Drill flow ran in Chromium with the offline coach. **The live Claude coach has not been run**: there's no API key in the build sandbox. The learner must check it with `ANTHROPIC_API_KEY` set.

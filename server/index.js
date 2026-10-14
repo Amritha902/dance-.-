@@ -7,6 +7,7 @@ import { createServer } from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { routinesRouter } from './routines.js';
+import { coachRouter } from './coach/route.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(here, '..');
@@ -18,6 +19,7 @@ export function createApp() {
   // MediaPipe's JS + WASM from the pinned npm package: no CDN at runtime.
   app.use('/vendor/mediapipe', express.static(path.join(root, 'node_modules', '@mediapipe', 'tasks-vision')));
   app.use(routinesRouter());
+  app.use(coachRouter());
   return app;
 }
 
