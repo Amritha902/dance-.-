@@ -16,7 +16,7 @@ Why this shape: tracking bodies in the browser keeps it private and fast, and th
 
 ## The Core Journey Through the System
 PRD ref: `prd.md > The Core Journey`.
-1. Paste link → `POST /api/routines` → server checks the link, starts yt-dlp, returns the routine id.
+1. Paste link → `POST /api/routines` → server checks the link, starts yt-dlp, returns the routine id. **Or** upload → `POST /api/routines/upload` streams the file into the cache and returns an id.
 2. Preparing screen polls `GET /api/routines/:id` → when the video is ready, the browser plays it hidden through the pose tracker → `PUT /api/routines/:id/pose` caches the frames.
 3. Studio loads the poses → the timeline module finds steps and the hookstep → the renderer draws the stickman each frame at the video's current time.
 4. Battle → webcam → live tracker → compare module scores your pose against the (mirrored) reference → renderer paints off-target limbs red → judgements every ~0.45 s, each recording limb scores and joint angles.
@@ -29,13 +29,13 @@ PRD ref: `prd.md > The Core Journey`.
 | Server | Node 18+ (ES modules), Express 4 | https://expressjs.com/ |
 | Party relay | `ws` 8 (WebSocket) | https://github.com/websockets/ws |
 | Video download | `yt-dlp`, a command-line tool on PATH | https://github.com/yt-dlp/yt-dlp |
-| Pose tracking | MediaPipe Tasks Vision, Pose Landmarker (lite), loaded from CDN | https://ai.google.dev/edge/mediapipe/solutions/vision/pose_landmarker/web_js |
+| Pose tracking | MediaPipe Tasks Vision 0.10.14, Pose Landmarker (lite), served from npm by our server | https://ai.google.dev/edge/mediapipe/solutions/vision/pose_landmarker/web_js |
 | Coach | `@anthropic-ai/sdk`, model `claude-opus-5-5` | https://docs.anthropic.com/ |
 | Client | Plain HTML/CSS/JS modules, Canvas 2D; no framework, no build step | — |
 | Tests | Node's built-in `node:test` | https://nodejs.org/api/test.html |
 
 Rationale: no build step keeps it fast to change; the learner chose a YouTube link (hence yt-dlp and a server) and the coach (hence the SDK).
-**Unverified in the build sandbox:** the CDN that serves MediaPipe is blocked there, so live tracking must be checked on the learner's machine.
+**Build sandbox:** YouTube is blocked there, so downloads must be checked on the learner's machine; MediaPipe is served from npm, so tracking *can* be tested there.
 
 ## Where It Runs and How Someone Tries It
 - Needs Node 18+, `yt-dlp` on PATH, a browser with WebGL and a webcam. An `ANTHROPIC_API_KEY` is needed for the AI coach (without it, the offline coach runs).
@@ -60,9 +60,13 @@ PRD ref: `prd.md > Getting a routine`.
 `server/routines.js`: create a routine, report status and progress, store and serve poses, list the library, leaderboards.
 PRD ref: `prd.md > Getting a routine`, `prd.md > Results and the AI coach`.
 
-### Server: trending
-`server/trending.js`: yt-dlp search over a few dance-challenge queries, de-duplicated, cached for 6 h.
-PRD ref: `prd.md > Trending`.
+### Server: Trend Scout
+`server/scout/` finds what's trending and the original choreography behind it:
+1. **Gather:** yt-dlp searches a set of dance-challenge queries ("dance challenge", "dance practice", "choreography", "kpop dance", "bollywood hook step") for recent videos, with metadata: title, channel, upload date, views, duration.
+2. **Group:** results are clustered by song, using normalised titles with cover, tutorial, mirror, slow, practice and reaction words stripped.
+3. **Pick the original:** for each group, Claude gets the candidates' metadata and returns, via a strict tool, the original-choreography video id, a label for every other candidate (cover, tutorial, mirrored, slowed, reaction, compilation) and a one-line reason. Without a key, `rules.js` scores official-channel signals, the earliest upload date and the absence of cover or tutorial words.
+4. **Cache** for 6 h; the UI shows the pick, the reason, and who decided (Claude or the rule-based picker).
+PRD ref: `prd.md > Trend Scout`.
 
 ### Server: party
 `server/party.js`: rooms with 4-letter codes, players, ready states, a host-chosen routine, a synchronised start time, and score relay.
@@ -102,7 +106,8 @@ PRD ref: `prd.md > Screens and Layout`.
 - `data/routines/<id>/pose.json`: `{ fps, aspect, duration, frames: [{ t, lm: [[x, y, z, visibility] × 33] }] }`.
 - `data/routines/<id>/scores.json`: top 50 runs `{ name, score, accuracy, mode, at }`.
 - `data/routines/<id>/coach.json`: last 30 runs `{ at, accuracy, steps: [{ label, accuracy }] }` (the coach's memory).
-- `data/trending.json`: `{ at, items }`.
+- `data/scout.json`: `{ at, source, groups: [{ song, original, reason, others: [{ id, label }] }] }`.
+- `data/routines/<id>/` is also used for uploads, with `meta.json` marking `source: "upload"`.
 - Browser `localStorage`: name, weight, mirror and speed preferences, fitness log.
 - Party rooms: in server memory only, gone when empty.
 
@@ -115,7 +120,12 @@ dance-.-/
 │   ├── store.js            # JSON/file storage under data/
 │   ├── youtube.js          # link parsing, yt-dlp download/search
 │   ├── routines.js         # routines, poses, library, leaderboard, coach routes
-│   ├── trending.js         # trending feed with 6 h cache
+│   ├── scout/
+│   │   ├── gather.js       # yt-dlp trend searches
+│   │   ├── group.js        # cluster results by song
+│   │   ├── pick.js         # Claude picks the original choreography
+│   │   ├── rules.js        # rule-based fallback picker
+│   │   └── index.js        # pipeline + 6 h cache
 │   ├── party.js            # party rooms over WebSocket
 │   └── coach/
 │       ├── agent.js        # Claude tool-use loop + tools + input sanitising
@@ -144,7 +154,7 @@ dance-.-/
 
 ## External Services and Dependencies
 - **YouTube via yt-dlp:** `yt-dlp -f "mp4[height<=720]..." -o data/routines/<id>/video.mp4 <url>`; `--dump-single-json` for metadata; `ytsearchN:<query>` for Trending. No key. Subject to YouTube's terms; videos are cached locally only.
-- **MediaPipe CDN:** `cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14` and the pose model from `storage.googleapis.com`. Free.
+- **MediaPipe:** the `@mediapipe/tasks-vision` npm package (0.10.14), served by our own server at `/vendor/mediapipe/`, so there's no CDN dependency. The pose model comes from `storage.googleapis.com`. Free.
 - **Claude API:** `client.beta.messages.create({ model: "claude-opus-5-5", tools, messages, output_config: { effort: "medium" }, betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" })`. Key from `ANTHROPIC_API_KEY`. A coaching run is a handful of short turns: it costs cents.
 
 ## Important Failure Modes

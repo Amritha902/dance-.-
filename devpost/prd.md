@@ -9,7 +9,7 @@ Learn any trending dance from a YouTube link: a mirrored stickman to study, live
 
 ## The Core Journey
 Source: `scope.md > The Core Loop`.
-1. **Home.** Paste a YouTube link, or tap a card in the Trending feed.
+1. **Home.** Paste a YouTube link, upload a dance clip, or tap a dance in Trend Scout.
 2. **Preparing.** A progress screen shows downloading, then "reading the choreography" while the dancer's body is tracked. The second visit to the same routine is instant.
 3. **Studio.** The video and the stickman play side by side, in sync. The app opens on the detected hookstep, looping. The learner toggles mirror, sets speed (0.25×, 0.5×, 0.75×, 1×), taps a step to loop it, or drags a custom loop region.
 4. **Battle.** The learner taps "Battle this". The camera turns on and a 4-beat count-in plays. The reference stickman and the learner's stickman overlap on one stage. Judgements pop up about twice a second, the combo builds, and **any limb that's well off turns red**.
@@ -17,7 +17,7 @@ Source: `scope.md > The Core Loop`.
 6. **Drill.** The button opens the Studio looping the coach's step at the coach's speed. Then battle again.
 
 ## Screens and Layout
-- **Home:** link box, Trending grid, "Your routines" (already prepared), lifetime fitness stats.
+- **Home:** link box and upload button, Trend Scout grid, "Your routines" (already prepared), lifetime fitness stats.
 - **Preparing:** progress bar with the current stage.
 - **Studio:** video and stickman panes; transport bar (play, speed, mirror, stickman-only); timeline with step chips and loop region; Battle button.
 - **Battle:** full-width dark stage; HUD with score, combo, accuracy bar and kcal; judgement pop-ups; your camera as a small picture-in-picture.
@@ -35,6 +35,9 @@ Source: `scope.md > Inspiration & Identity`. Approved by the learner: warm, ligh
   - [ ] Valid links (watch, youtu.be, shorts) are accepted; anything else shows "That doesn't look like a YouTube link."
   - [ ] Progress is shown while downloading and while tracking.
   - [ ] A routine already prepared opens without re-downloading or re-tracking.
+- As a learner, I upload a dance clip from my device (mp4, mov or webm, up to 200 MB) and learn from it the same way.
+  - [ ] Other file types are refused with a clear message.
+  - [ ] The uploaded clip never leaves the machine running the app.
 
 ### Studio
 Source: `scope.md > The POC Boundary`.
@@ -63,8 +66,12 @@ Source: `scope.md > The Unique Kernel`.
 - [ ] The Drill button opens the Studio on that step, at that speed.
 - [ ] Leaderboard per routine.
 
-### Trending
-- [ ] Home shows current dance-challenge videos, refreshed every few hours; tapping one prepares it.
+### Trend Scout
+- [ ] Home shows dances trending now, one card per song or challenge, refreshed every few hours.
+- [ ] For each, Trend Scout picks the **original choreography** video (the official MV, dance practice, or choreographer's own upload) over covers, tutorials, mirrored and slowed versions, and labels the others.
+- [ ] Each pick shows *why*, e.g. "official artist channel, earliest upload, not a cover", so the mechanism is visible.
+- [ ] The pick is made by Claude from video metadata (title, channel, date, views); without an API key, a rule-based picker does it, labelled.
+- [ ] Tapping a card prepares the original; tutorials stay one tap away for learning.
 
 ### Fitness
 - [ ] Calorie and intensity estimate per battle, from body motion and the learner's weight.
@@ -84,7 +91,8 @@ Source: `scope.md > The Unique Kernel`.
 - **Privacy:** camera frames and poses never leave the browser; the coach gets only step numbers.
 
 ## Product Decisions
-- **YouTube link, not upload:** the learner chose the link because it's the natural way people find dances. Accepted tradeoff: it needs a local server with yt-dlp.
+- **YouTube link *and* upload:** the link is how people find dances; upload was added after reading the official rules (third-party terms, and no copyrighted music in the demo video), so the demo can use a clip the learner has rights to.
+- **Trend Scout finds the original choreography**, as asked by the learner: a live backbone that shows how it decides.
 - **Demo moment = red limbs + coach**, as chosen by the learner.
 - **The coach is in the POC**, as chosen by the learner.
 - **Rebuild every feature from the earlier idea** (studio, battle, trending, fitness, party), as chosen by the learner, written fresh in this repo.

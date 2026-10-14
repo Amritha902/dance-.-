@@ -1,6 +1,6 @@
 ---
 doc: checklist
-status: draft
+status: approved
 ---
 
 # Build Checklist
@@ -10,11 +10,11 @@ Build mode: fast
 ## Slices
 
 - [ ] **1. Paste a link and watch the dancer as a stickman**
-  Becomes usable: Paste a YouTube link → progress while it downloads and the dancer is tracked → Studio with the video and a stickman dancing in sync, with mirror and speed controls. A second visit opens instantly.
+  Becomes usable: Paste a YouTube link **or upload a clip** → progress while it downloads and the dancer is tracked → Studio with the video and a stickman dancing in sync, with mirror and speed controls. A second visit opens instantly.
   Why now: It's the spine every other feature stands on, and it carries the two biggest risks (yt-dlp downloads and MediaPipe tracking) right at the start. Bootstrapping is folded in here.
   PRD ref: `prd.md > The Core Journey` (steps 1–3), `prd.md > Getting a routine`, `prd.md > Studio`
   Spec ref: `spec.md > Server: app and storage`, `spec.md > Server: YouTube`, `spec.md > Server: routines API`, `spec.md > Client: pose modules`, `spec.md > Client: renderer`, `spec.md > Client: screens`, `spec.md > Look and Feel`
-  Build: package.json, Express server, storage, link parsing and yt-dlp download with progress, routine status and pose cache routes; web shell, router, Home (link box), Preparing (download + MediaPipe extraction), Studio (video + stickman in sync, mirror, speed); skeleton, interpolation and framing modules; stickman renderer.
+  Build: package.json, MIT LICENSE, Express server, storage, link parsing and yt-dlp download with progress, clip upload, routine status and pose cache routes, MediaPipe served from npm; web shell, router, Home (link box), Preparing (download + MediaPipe extraction), Studio (video + stickman in sync, mirror, speed); skeleton, interpolation and framing modules; stickman renderer.
   Verify (mechanical): Unit tests for link parsing, mirroring and interpolation pass. The server starts; `POST /api/routines` with a bad link returns 400 and with a good link returns an id. In Chromium, a routine (video placed in the cache, since YouTube is blocked in this sandbox) is tracked by the real MediaPipe model, the poses are cached, and the Studio renders the stickman with no console errors.
   Learner check: Run `npm start`, paste a dance link, and watch the stickman dance next to the video; toggle mirror and 0.5×.
   Commit: `Paste a link, track the dancer, and learn from a synced stickman`
@@ -59,15 +59,15 @@ Build mode: fast
   Learner check: Do a battle, check kcal and your streak, then set your weight and see the estimate change.
   Commit: `Track calories and streaks, add leaderboards and settings`
 
-- [ ] **6. Trending feed and your routines**
-  Becomes usable: Home shows a Trending grid of current dance challenges and "Your routines"; tapping one prepares or opens it.
+- [ ] **6. Trend Scout and your routines**
+  Becomes usable: Home shows Trend Scout (one card per trending dance, with the original choreography picked and the reason shown) and "Your routines"; tapping one prepares or opens it.
   Why now: Gives first-time users something to tap. It depends only on slice 1.
-  PRD ref: `prd.md > Trending`, `prd.md > Screens and Layout`
-  Spec ref: `spec.md > Server: trending`, `spec.md > Server: YouTube`
-  Build: Trending search with a 6 h cache, library route, Home grids.
-  Verify (mechanical): Unit test for de-duplication and the cache; a route test with yt-dlp stubbed; Home renders both grids in Chromium.
-  Learner check: Open Home and tap a trending dance.
-  Commit: `Add trending dances and your routines to Home`
+  PRD ref: `prd.md > Trend Scout`, `prd.md > Screens and Layout`
+  Spec ref: `spec.md > Server: Trend Scout`, `spec.md > Server: YouTube`
+  Build: gather, group, Claude picker with a strict tool, rule-based picker, 6 h cache; library route; Home grids showing the pick, the reason and who decided.
+  Verify (mechanical): Unit tests: grouping clusters covers and tutorials of one song together; the rule picker prefers the official, earliest, non-cover upload; the Claude picker against a scripted model returns a valid pick and rejects an id outside the group. Route test with yt-dlp stubbed; Home renders in Chromium.
+  Learner check: Open Home: for a dance you know, is the picked video really the original? Tap it.
+  Commit: `Add Trend Scout: trending dances traced to their original choreography`
 
 - [ ] **7. Party: dance with friends**
   Becomes usable: Create or join a room by code from several phones, the host picks the routine, everyone readies up, a synchronised battle with a live room leaderboard, then room results.
@@ -101,4 +101,8 @@ Reflection:
 Activity mode:
 
 ## Revisions
+
+- Added clip upload alongside YouTube links. Reading the official rules showed that third-party terms and the no-copyrighted-music rule for the demo video make an upload path necessary.
+- Trending became Trend Scout, which finds the original choreography behind each trend, at the learner's request for a "live backbone".
+- MediaPipe is served from the npm package instead of a CDN: the CDN was unreachable in the build sandbox, and self-hosting removes a runtime dependency.
 

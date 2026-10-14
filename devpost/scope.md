@@ -5,7 +5,7 @@ status: approved
 
 # Mimic
 
-Paste a YouTube link to a trending dance. Learn it from a clean, mirrored stickman, then dance it on camera, where your wrong limbs light up red, and an AI coach tells you exactly what to fix.
+Paste a YouTube link to a trending dance, or upload your own clip. Learn it from a clean, mirrored stickman, then dance it on camera, where your wrong limbs light up red, and an AI coach tells you exactly what to fix.
 
 ## The Unique Kernel
 **It doesn't just show you the dance, it coaches you.** While you dance, the limb you have wrong turns red on your own stickman. When the song ends, an AI coach looks at your run step by step, remembers your past attempts, and gives you one specific thing to drill. Other dance apps give you a score; this one tells you *which step*, *which limb*, and *how to fix it*.
@@ -28,11 +28,11 @@ From a YouTube link: the stickman dances in sync with the video, mirrored, slowe
 The "oh, that's cool" beat: red limbs while dancing, then the coach naming the exact fix.
 
 ## The POC Boundary
-- YouTube link → video download → pose extraction → cached routine
+- YouTube link **or uploaded clip** → pose extraction → cached routine
+- **Trend Scout:** a live feed of trending dances that finds the *original choreography* video for each one (not covers or tutorials), with its reasoning shown
 - Studio: stickman and video in sync, mirror, speed, loop, auto-cut steps, hookstep detection
 - Battle: live camera scoring, judgements, combo, rank, **live red limbs**
 - Results: step-by-step report, **AI coach** (an agent with tools, memory and retrieval), Drill button, leaderboard
-- Trending feed of current dance challenges
 - Calories, intensity and daily streak
 - Party rooms: friends on their own phones, synchronised start, live leaderboard
 
