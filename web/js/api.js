@@ -25,6 +25,8 @@ export const api = {
   savePose: (id, pose) => call('PUT', `/api/routines/${id}/pose`, pose),
   coach: (id, report) => call('POST', `/api/routines/${id}/coach`, { report }),
   config: () => call('GET', '/api/config'),
+  scores: (id) => call('GET', `/api/routines/${id}/scores`),
+  postScore: (id, entry) => call('POST', `/api/routines/${id}/scores`, entry),
 };
 
 export const mediaUrl = (id) => `/media/${id}`;

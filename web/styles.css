@@ -204,6 +204,30 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 700; letter-spacing: -.01em
 .step-row .why { color: var(--ink-soft); font-size: 12px; }
 .step-row.weakest { background: var(--accent-wash); border-radius: 10px; }
 
+/* ---------- fitness, board, settings ---------- */
+.hud-kcal { position: absolute; right: 18px; bottom: 16px; display: grid; justify-items: end; }
+.hud-kcal b { font-family: var(--serif); font-size: 26px; color: var(--warn); font-variant-numeric: tabular-nums; }
+.hud-kcal small { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; opacity: .6; }
+.chips-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.stat-chip { font-size: 13px; padding: 5px 11px; border-radius: 999px; background: var(--paper-2); }
+.stat-chip.streak.grew { background: var(--accent-wash); color: var(--accent-deep); font-weight: 600; }
+.board h2 { font-size: 20px; margin-bottom: 8px; }
+.board ol { list-style: none; counter-reset: n; }
+.board li { counter-increment: n; display: flex; align-items: center; gap: 12px; padding: 9px 6px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.board li::before { content: counter(n); font-family: var(--serif); color: var(--ink-soft); width: 18px; }
+.board li span { flex: 1; }
+.board li small { color: var(--ink-soft); width: 40px; text-align: right; }
+.stats { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 28px; padding: 20px 24px; margin-top: 8px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); }
+.stat { display: grid; }
+.stat b { font-family: var(--serif); font-size: 28px; }
+.stat small { color: var(--ink-soft); font-size: 12px; }
+.stats-note { margin-left: auto; font-size: 11px; }
+.settings { max-width: 440px; margin: 50px auto; display: grid; gap: 18px; }
+.settings label { display: grid; gap: 6px; font-weight: 600; font-size: 14px; }
+.settings label small { font-weight: 400; }
+.field { height: 46px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line); background: #fff; font: inherit; }
+.field:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-wash); }
+
 /* ---------- feedback ---------- */
 .toast {
   position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 20px); opacity: 0;

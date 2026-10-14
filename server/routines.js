@@ -126,6 +126,31 @@ export function routinesRouter() {
     res.sendFile(f);
   });
 
+  // Leaderboard per routine: the top 50 runs, best first.
+  r.get('/api/routines/:id/scores', async (req, res) => {
+    if (!ROUTINE_ID.test(req.params.id)) return res.status(400).json({ error: 'bad id' });
+    res.json((await readJson(routineFile(req.params.id, 'scores.json'), [])).slice(0, 20));
+  });
+  r.post('/api/routines/:id/scores', express.json(), async (req, res) => {
+    const { id } = req.params;
+    if (!ROUTINE_ID.test(id)) return res.status(400).json({ error: 'bad id' });
+    if (!(await readJson(metaFile(id)))) return res.status(404).json({ error: 'No such routine.' });
+    const { name, score, accuracy, mode } = req.body || {};
+    if (!Number.isFinite(score) || score < 0) return res.status(400).json({ error: 'A score is required.' });
+    const file = routineFile(id, 'scores.json');
+    const list = await readJson(file, []);
+    list.push({
+      name: String(name || 'Dancer').trim().slice(0, 24) || 'Dancer',
+      score: Math.round(Math.min(score, 1e7)),
+      accuracy: Math.round(Math.min(100, Math.max(0, Number(accuracy) || 0))),
+      mode: mode === 'party' ? 'party' : 'solo',
+      at: new Date().toISOString(),
+    });
+    list.sort((a, b) => b.score - a.score);
+    await writeJson(file, list.slice(0, 50));
+    res.json(list.slice(0, 20));
+  });
+
   // The browser tracked the dancer; keep the result so the next visit is instant.
   r.put('/api/routines/:id/pose', express.json({ limit: '60mb' }), async (req, res) => {
     const { id } = req.params;

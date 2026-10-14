@@ -49,7 +49,7 @@ Build mode: fast
   Learner check: With `ANTHROPIC_API_KEY` set, finish a battle and read the coach's plan; tap Drill.
   Commit: `Add the AI coach agent with memory, retrieval and drill`
 
-- [ ] **5. Calories, streaks and the leaderboard**
+- [x] **5. Calories, streaks and the leaderboard**
   Becomes usable: Live kcal in the battle HUD; kcal, intensity and streak on results; lifetime stats on Home; a per-routine leaderboard; Settings for name and weight.
   Why now: Round out the battle loop before the side features.
   PRD ref: `prd.md > Fitness`, `prd.md > Results and the AI coach` (leaderboard)

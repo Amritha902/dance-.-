@@ -14,6 +14,7 @@ import { compare, jointAngles } from '../pose/compare.js';
 import { createLiveTracker } from '../pose/tracker.js';
 import { createJudge, multiplier } from '../judge.js';
 import { drawFigure, fitCanvas } from '../draw.js';
+import { createBurn, weightKg, intensityLabel } from '../fitness.js';
 
 const WRONG = '#ff2d55';
 const flipX = (lm) => lm && lm.map(([x, y, z, v]) => [1 - x, y, z, v]);
@@ -53,6 +54,7 @@ export async function battleScreen(id, { onFrame, onFinish, region: forced } = {
   const countIn = el('div', { class: 'count-in' });
   const banner = el('div', { class: 'stage-banner' }, 'Starting the camera…');
   const wrongEl = el('div', { class: 'wrong-list' });
+  const kcalEl = el('b', {}, '0.0');
 
   const stage = el('div', { class: 'stage' },
     canvas, refVideo, cam,
@@ -61,6 +63,7 @@ export async function battleScreen(id, { onFrame, onFinish, region: forced } = {
       comboEl,
       el('div', { class: 'meter' }, meterFill),
     ),
+    el('div', { class: 'hud-kcal' }, kcalEl, el('small', {}, 'kcal')),
     wrongEl, pops, countIn, banner,
   );
   const node = el('div', { class: 'battle' },
@@ -73,6 +76,7 @@ export async function battleScreen(id, { onFrame, onFinish, region: forced } = {
   );
 
   const judge = createJudge();
+  const burn = createBurn({ weightKg: weightKg() });
   let tracker = null, stream = null, raf = 0, running = false, live = false, you = null, youBox = null, smooth = 0;
   let camAspect = 4 / 3;
 
@@ -133,6 +137,9 @@ export async function battleScreen(id, { onFrame, onFinish, region: forced } = {
     if (!live) { raf = requestAnimationFrame(draw); return; }
 
     const extra = cmp ? { you: jointAngles(you, camAspect), ref: jointAngles(mirrored ? ref : mirror(ref), pose.aspect) } : {};
+    // Calories from your own motion, on the wall clock so dropped frames don't distort the rate.
+    burn.push(you, performance.now() / 1000);
+    kcalEl.textContent = burn.kcal.toFixed(1);
     const j = judge.push(t, cmp, extra);
     if (j) pop(j);
     smooth = smooth * 0.85 + (cmp ? cmp.score : 0) * 0.15;
@@ -150,6 +157,7 @@ export async function battleScreen(id, { onFrame, onFinish, region: forced } = {
     refVideo.pause();
     const result = {
       id, title: meta.title, region, mirrored, at: new Date().toISOString(), ...judge.result(),
+      workout: { ...burn.summary(), label: intensityLabel(burn.summary().peak) },
     };
     teardown();
     if (onFinish) { onFinish(result); return; }

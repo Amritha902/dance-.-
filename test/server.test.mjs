@@ -112,3 +112,21 @@ test('ids that are not routine ids never reach the filesystem', async () => {
   assert.equal((await fetch(`${base}/media/..%2Fsecret`)).status, 400);
   assert.equal((await fetch(`${base}/api/routines/short/pose`)).status, 400);
 });
+
+test('the leaderboard keeps the best runs first and cleans what it is sent', async () => {
+  const send = (body) => fetch(`${base}/api/routines/AAAAAAAAAAA/scores`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+  }).then(json);
+  assert.equal((await send({ name: 'x' })).status, 400);
+  await send({ name: 'Ann', score: 900, accuracy: 70 });
+  await send({ name: '  ', score: 2400, accuracy: 140, mode: 'cheat' });
+  const board = (await send({ name: 'A very long name that keeps going', score: 50 })).body;
+  assert.deepEqual(board.map((b) => b.score), [2400, 900, 50]);
+  assert.equal(board[0].name, 'Dancer');
+  assert.equal(board[0].accuracy, 100);
+  assert.equal(board[0].mode, 'solo');
+  assert.equal(board[2].name.length, 24);
+  assert.equal((await fetch(`${base}/api/routines/BBBBBBBBBBB/scores`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ score: 1 }),
+  })).status, 404);
+});

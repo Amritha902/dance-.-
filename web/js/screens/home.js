@@ -2,6 +2,7 @@
 
 import { el, toast } from '../dom.js';
 import { api } from '../api.js';
+import { readLog, streakFrom } from '../fitness.js';
 
 export function routineCard(r) {
   return el('a', { class: 'card', href: `#/learn/${r.id}` },
@@ -11,6 +12,19 @@ export function routineCard(r) {
       el('b', {}, r.title),
       el('small', {}, r.channel || ''),
     ),
+  );
+}
+
+function statsStrip() {
+  const log = readLog();
+  if (!log.sessions) return null;
+  const stat = (value, label) => el('div', { class: 'stat' }, el('b', {}, value), el('small', {}, label));
+  return el('section', { class: 'stats' },
+    stat(`🔥 ${streakFrom(log.days)}`, 'day streak'),
+    stat(Math.round(log.kcal).toLocaleString(), 'kcal danced off'),
+    stat(Math.round(log.seconds / 60).toLocaleString(), 'active minutes'),
+    stat(log.sessions, 'battles'),
+    el('small', { class: 'muted stats-note' }, 'Calories are estimated from your motion.'),
   );
 }
 
@@ -71,6 +85,7 @@ export function homeScreen() {
       el('div', { class: 'or-row' }, el('span', {}, 'or'), uploadBtn, file,
         el('small', { class: 'muted' }, 'mp4, webm or mov, up to 200 MB. Use a clip you have the rights to.')),
     ),
+    statsStrip(),
     librarySection,
   );
   return { node, mounted: () => input.focus() };

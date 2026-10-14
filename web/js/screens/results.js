@@ -4,6 +4,8 @@ import { el, confetti, beep, fmtTime } from '../dom.js';
 import { api } from '../api.js';
 import { sampleRoutine, cutSteps } from '../pose/timeline.js';
 import { buildReport, weakestStep } from '../report.js';
+import { recordWorkout } from '../fitness.js';
+import { prefs } from '../dom.js';
 
 export function readResult(id) {
   try {
@@ -18,6 +20,11 @@ export function scoreCard(r) {
     el('div', { class: 'sc-body' },
       el('h1', {}, r.score.toLocaleString()),
       el('p', { class: 'muted' }, `${r.accuracy}% match · best combo ${r.bestCombo}`),
+      r.workout ? el('div', { class: 'chips-row' },
+        el('span', { class: 'stat-chip' }, el('b', {}, r.workout.kcal.toFixed(1)), ' kcal'),
+        el('span', { class: 'stat-chip' }, r.workout.label),
+        r.streak ? el('span', { class: `stat-chip streak${r.streak.grew ? ' grew' : ''}` }, `🔥 ${r.streak.days}-day streak`) : null,
+      ) : null,
       el('div', { class: 'tally' }, ...Object.entries(r.tally).map(([k, v]) =>
         el('span', { class: `t ${k.toLowerCase()}` }, el('b', {}, v), k))),
     ),
@@ -77,6 +84,13 @@ function coachCard(id, out) {
 
 export function resultsScreen(id) {
   const r = readResult(id);
+  // Log the workout once per battle (a reload of this page must not count twice).
+  if (r?.workout && !r.logged) {
+    const log = recordWorkout({ kcal: r.workout.kcal, seconds: r.workout.activeSeconds });
+    r.streak = { days: log.streak, grew: log.streakGrew };
+    r.logged = true;
+    try { sessionStorage.setItem('mimic.result', JSON.stringify(r)); } catch { /* fine */ }
+  }
   if (!r) {
     return { node: el('div', { class: 'results' }, el('h1', {}, 'No recent battle'), el('a', { class: 'btn primary', href: `#/learn/${id}` }, 'Back to the studio')) };
   }
@@ -84,12 +98,14 @@ export function resultsScreen(id) {
   const badge = el('span', { class: 'coach-badge' }, 'Coach');
   const coach = el('section', { class: 'coach' }, el('div', { class: 'coach-head' }, badge, el('h2', {}, 'Your next practice')), coachBody);
   const reportSlot = el('div');
+  const boardSlot = el('div');
 
   const node = el('div', { class: 'results' },
     el('p', { class: 'eyebrow' }, r.title),
     scoreCard(r),
     coach,
     reportSlot,
+    boardSlot,
     el('div', { class: 'result-actions' },
       el('a', { class: 'btn primary', href: `#/battle/${id}` }, 'Run it back'),
       el('a', { class: 'btn ghost', href: `#/learn/${id}` }, 'Back to the studio'),
@@ -115,12 +131,30 @@ export function resultsScreen(id) {
     }
   }
 
+  async function leaderboard() {
+    let board;
+    try {
+      board = r.posted
+        ? await api.scores(id)
+        : await api.postScore(id, { name: prefs.get('name', 'Dancer'), score: r.score, accuracy: r.accuracy, mode: 'solo' });
+      r.posted = true;
+      try { sessionStorage.setItem('mimic.result', JSON.stringify(r)); } catch { /* fine */ }
+    } catch { return; }
+    if (!board.length) return;
+    boardSlot.replaceChildren(el('section', { class: 'board' },
+      el('h2', {}, 'Best on this routine'),
+      el('ol', {}, ...board.slice(0, 8).map((b) => el('li', {},
+        el('span', {}, b.name), el('b', {}, b.score.toLocaleString()), el('small', {}, `${b.accuracy}%`)))),
+    ));
+  }
+
   return {
     node,
     mounted() {
       beep(880, 0.12, 0.06, 'triangle');
       if (r.rank === 'S' || r.rank === 'A') confetti();
       coachMe();
+      leaderboard();
     },
   };
 }
