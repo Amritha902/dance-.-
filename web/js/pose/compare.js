@@ -10,6 +10,25 @@ import { LIMBS, JOINTS, seen } from './skeleton.js';
 // A limb more than this many degrees off is "wrong" — painted red live.
 export const WRONG_DEG = 50;
 
+// Feedback is a scale, not a switch: how far off a limb is decides its colour,
+// so you can see yourself getting closer (red → orange → yellow → fine).
+export const SEVERITY = [
+  { from: WRONG_DEG, level: 'red', color: '#ff2d55' },
+  { from: 37, level: 'orange', color: '#ff8a2b' },
+  { from: 25, level: 'yellow', color: '#ffd23f' },
+];
+export const severity = (off) => SEVERITY.find((s) => off >= s.from) || null;
+
+/** limb name → colour for every limb that's at least slightly off. */
+export function limbColorsFor(cmp) {
+  const out = {};
+  for (const l of cmp?.limbs || []) {
+    const s = severity(l.off);
+    if (s) out[l.name] = s.color;
+  }
+  return out;
+}
+
 function dir(lm, a, b, aspect) {
   const dx = (lm[b][0] - lm[a][0]) * aspect, dy = lm[b][1] - lm[a][1];
   const d = Math.hypot(dx, dy);

@@ -3,7 +3,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { compare, jointAngles, WRONG_DEG } from '../web/js/pose/compare.js';
+import { compare, jointAngles, WRONG_DEG, severity, limbColorsFor } from '../web/js/pose/compare.js';
 import { mirror, P } from '../web/js/pose/skeleton.js';
 import { figure } from './geometry.test.mjs';
 
@@ -82,4 +82,16 @@ test('joint angles account for the frame aspect ratio', () => {
   assert.equal(jointAngles(lm, 1)['left elbow'], 135);
   // On a 2:1 frame the forearm's sideways run is twice as long: acos(-1/√5) ≈ 117°.
   assert.equal(jointAngles(lm, 2)['left elbow'], 117);
+});
+
+test('feedback is a scale: fine, yellow, orange, then red', () => {
+  assert.deepEqual([10, 24, 25, 36, 37, 49, 50, 120].map((d) => severity(d)?.level ?? 'fine'),
+    ['fine', 'fine', 'yellow', 'yellow', 'orange', 'orange', 'red', 'red']);
+  const ref = moveArm(moveArm(figure(), 'left', 0), 'right', Math.PI);
+  const you = moveArm(moveArm(figure(), 'left', 0.5), 'right', Math.PI / 2); // ~29° and 90° off
+  const colors = limbColorsFor(compare(ref, you));
+  assert.equal(colors['left arm'], severity(29).color);
+  assert.equal(colors['right arm'], severity(90).color);
+  assert.equal(colors['left leg'], undefined, 'limbs that match keep the body colour');
+  assert.deepEqual(limbColorsFor(null), {});
 });

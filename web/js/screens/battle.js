@@ -10,13 +10,12 @@ import { el, prefs, beep, fmtTime } from '../dom.js';
 import { api, mediaUrl } from '../api.js';
 import { poseAt, routineBox, boxOf, easeBox, mirrorBox, sampleRoutine, findHook } from '../pose/timeline.js';
 import { mirror } from '../pose/skeleton.js';
-import { compare, jointAngles } from '../pose/compare.js';
+import { compare, jointAngles, limbColorsFor } from '../pose/compare.js';
 import { createLiveTracker } from '../pose/tracker.js';
 import { createJudge, multiplier } from '../judge.js';
 import { drawFigure, fitCanvas } from '../draw.js';
 import { createBurn, weightKg, intensityLabel } from '../fitness.js';
 
-const WRONG = '#ff2d55';
 const flipX = (lm) => lm && lm.map(([x, y, z, v]) => [1 - x, y, z, v]);
 
 export async function battleScreen(id, { onFrame, onFinish, region: forced, startAt = null } = {}) {
@@ -126,11 +125,12 @@ export async function battleScreen(id, { onFrame, onFinish, region: forced, star
       // Show yourself as a mirror would. Reflect x only — your limbs keep their
       // own names, so the red one is the one you need to move.
       youBox = easeBox(youBox, mirrorBox(boxOf(you)), 0.15);
-      const limbColors = Object.fromEntries((cmp?.wrong || []).map((n) => [n, WRONG]));
+      const limbColors = limbColorsFor(cmp);
       const good = cmp && cmp.score >= 70;
       drawFigure(ctx, flipX(you), {
         w, h, box: youBox, aspect: camAspect, glow: true, limbColors,
-        color: good ? '#7cf0b8' : '#ffc46b', mood: cmp?.wrong.length ? 'oops' : 'happy',
+        // Base colour stays clear of the yellow/orange/red scale painted on off limbs.
+        color: good ? '#7cf0b8' : '#a9dcff', mood: cmp?.wrong.length ? 'oops' : 'happy',
       });
       wrongEl.textContent = cmp?.wrong.length ? `Fix: ${cmp.wrong.join(', ')}` : '';
     } else {

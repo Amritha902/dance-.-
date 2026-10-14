@@ -60,7 +60,7 @@ Added in final review at the learner's request.
 - [ ] Scoring ignores where the learner stands and how far they are from the camera.
 - [ ] Copying face-to-face (mirrored) scores as well as copying side-on.
 - [ ] Judgements (PERFECT, GREAT, GOOD, OFF, MISS) about twice a second; a combo multiplier up to 4×.
-- [ ] **Red limbs:** each of the learner's arms, legs and torso turns red when its direction is more than about 50° off the dancer's.
+- [ ] **Limb feedback scale:** each of the learner's arms, legs and torso turns yellow when slightly off (25°+), orange when getting there (37°+), and red when wrong (50°+); refined in final review at the learner's request.
 - [ ] Calories accumulate live.
 
 ### Results and the AI coach

@@ -13,7 +13,7 @@ Built for the Devpost **Build With AI: Basics** hackathon with the Devpost Learn
 | **Get a routine** | Upload a dance clip (mp4, webm or mov). Pasting a YouTube link is an opt-in extra. The dancer's body is tracked once, in your browser, and cached. |
 | **Studio** | Video and stickman play in sync. Mirror it (a true mirror that swaps left and right, not just a flipped picture), slow it to 0.25×, and loop the **hookstep** (found automatically) or any of the auto-cut **steps**. |
 | **Learn it slower** | Under the Studio: tutorials, mirrored and slowed versions of the same dance, most helpful first (reactions and covers left out). Type the song name if your clip is called something like IMG_2041. |
-| **Battle** | Dance it on camera. You're judged about twice a second (PERFECT … MISS), with a combo and a rank. **Any limb more than about 50° off turns red, live.** |
+| **Battle** | Dance it on camera. You're judged about twice a second (PERFECT … MISS), with a combo and a rank. **Off limbs light up live on a scale: yellow (slightly off), orange (getting there), red (50°+ off).** |
 | **AI coach** | After the song, a Claude agent reads your run step by step, recalls your earlier attempts, pulls cues from a teaching library, and gives you one plan: which step, what to fix in your body, what speed, and what improved. **Drill** opens that step at that speed. |
 | **Trend Scout** | Dances trending now, each traced back to its **original choreography** (not covers, tutorials or mirrored re-uploads), showing who decided (Claude or rules) and why. |
 | **Workout** | Live calorie estimate, intensity, daily streak and lifetime totals. |
@@ -70,7 +70,7 @@ Phones on the same Wi-Fi can open the computer's address (the room screen shows 
 npm test
 ```
 
-89 tests, run with Node's built-in runner, cover:
+90 tests, run with Node's built-in runner, cover:
 - link parsing, uploads, pose caching and path safety;
 - true mirroring, interpolation and framing;
 - step cutting, hookstep detection and tempo on routines with known answers;
