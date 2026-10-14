@@ -9,7 +9,7 @@ Build mode: fast
 
 ## Slices
 
-- [ ] **1. Paste a link and watch the dancer as a stickman**
+- [x] **1. Paste a link and watch the dancer as a stickman**
   Becomes usable: Paste a YouTube link **or upload a clip** → progress while it downloads and the dancer is tracked → Studio with the video and a stickman dancing in sync, with mirror and speed controls. A second visit opens instantly.
   Why now: It's the spine every other feature stands on, and it carries the two biggest risks (yt-dlp downloads and MediaPipe tracking) right at the start. Bootstrapping is folded in here.
   PRD ref: `prd.md > The Core Journey` (steps 1–3), `prd.md > Getting a routine`, `prd.md > Studio`
@@ -101,6 +101,8 @@ Reflection:
 Activity mode:
 
 ## Revisions
+
+- Slice 1 verification: the YouTube path was tested with a stubbed yt-dlp, because YouTube is unreachable from the build sandbox. Real MediaPipe tracking was verified on an uploaded clip (8 s, 121 poses) in Chromium. Tracking took 88 s on the sandbox's software GPU; it needs timing on real hardware.
 
 - Added clip upload alongside YouTube links. Reading the official rules showed that third-party terms and the no-copyrighted-music rule for the demo video make an upload path necessary.
 - Trending became Trend Scout, which finds the original choreography behind each trend, at the learner's request for a "live backbone".

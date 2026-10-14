@@ -1,0 +1,21 @@
+{
+  "name": "mimic",
+  "version": "0.1.0",
+  "description": "Learn any dance from a video: a mirrored stickman to study, live camera scoring with red limbs, and an AI coach that tells you what to fix.",
+  "type": "module",
+  "main": "server/index.js",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0",
+    "@mediapipe/tasks-vision": "0.10.14",
+    "express": "^4.22.3",
+    "ws": "^8.22.0"
+  }
+}
