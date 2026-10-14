@@ -19,7 +19,7 @@ Build mode: fast
   Learner check: Run `npm start`, paste a dance link, and watch the stickman dance next to the video; toggle mirror and 0.5×.
   Commit: `Paste a link, track the dancer, and learn from a synced stickman`
 
-- [ ] **2. Loop the hard part: steps and hookstep**
+- [x] **2. Loop the hard part: steps and hookstep**
   Becomes usable: The Studio opens on the hookstep, looping; the routine is cut into step chips you can tap to loop; you can drag a custom loop region.
   Why now: Steps are the unit the battle report and the coach talk about, so they must exist before either.
   PRD ref: `prd.md > Studio`
