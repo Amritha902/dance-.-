@@ -154,6 +154,10 @@ export async function studioScreen(id) {
       el('div', { class: 'chips' }, ...speedBtns, mirrorBtn, stickBtn, loopBtn),
     ),
     el('div', { class: 'region-row' }, ...regionChips),
+    el('p', { class: 'studio-tip muted small' },
+      hook
+        ? 'The Hook is the move that repeats most: learn it first. Loop it at 0.5× until it feels easy, then press Battle this.'
+        : 'Pick a step, loop it at 0.5× until it feels easy, then press Battle this.'),
     relatedSection(id),
   );
 

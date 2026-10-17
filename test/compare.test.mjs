@@ -3,7 +3,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { compare, jointAngles, WRONG_DEG, severity, limbColorsFor } from '../web/js/pose/compare.js';
+import { compare, jointAngles, WRONG_DEG, severity, limbColorsFor, liveCue } from '../web/js/pose/compare.js';
 import { mirror, P } from '../web/js/pose/skeleton.js';
 import { figure } from './geometry.test.mjs';
 
@@ -94,4 +94,24 @@ test('feedback is a scale: fine, yellow, orange, then red', () => {
   assert.equal(colors['right arm'], severity(90).color);
   assert.equal(colors['left leg'], undefined, 'limbs that match keep the body colour');
   assert.deepEqual(limbColorsFor(null), {});
+});
+
+test('the live cue names the worst limb and which way to move it', () => {
+  const up = moveArm(figure(), 'right', -Math.PI / 2), down = moveArm(figure(), 'right', Math.PI / 2);
+  const raise = liveCue(up, down, compare(up, down));
+  assert.equal(raise.limb, 'right arm');
+  assert.equal(raise.level, 'red');
+  assert.equal(raise.text, 'Right arm: raise it higher');
+  assert.equal(liveCue(down, up, compare(down, up)).text, 'Right arm: bring it lower');
+  assert.equal(liveCue(up, up, compare(up, up)), null, 'nothing to fix, nothing said');
+});
+
+test('a bent elbow against a straight arm is told to straighten', () => {
+  const ref = moveArm(figure(), 'left', 0);
+  const you = ref.map((p) => [...p]);
+  const [ex, ey] = you[P.lElbow];
+  you[P.lWrist] = [ex, ey - 0.1, 0, 1]; // forearm folded straight up
+  const cue = liveCue(ref, you, compare(ref, you));
+  assert.equal(cue.limb, 'left arm');
+  assert.equal(cue.text, 'Left arm: straighten the elbow');
 });

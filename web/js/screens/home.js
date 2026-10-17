@@ -1,18 +1,37 @@
 // Home: paste a link or upload a clip, and pick up a routine you've already learned.
 
 import { el, toast } from '../dom.js';
-import { api } from '../api.js';
+import { api, mediaUrl } from '../api.js';
 import { readLog, streakFrom } from '../fitness.js';
 import { scoutSection } from './scout.js';
 
 export function routineCard(r) {
   return el('a', { class: 'card', href: `#/learn/${r.id}` },
     el('div', { class: 'thumb', style: r.thumbnail ? { backgroundImage: `url("${r.thumbnail}")` } : null },
+      // An uploaded clip has no thumbnail: show a frame from the clip itself.
+      !r.thumbnail && r.source === 'upload'
+        ? el('video', { class: 'thumb-frame', src: `${mediaUrl(r.id)}#t=0.5`, muted: true, playsInline: true, preload: 'metadata', 'aria-hidden': 'true' })
+        : null,
       r.source === 'upload' ? el('span', { class: 'chip' }, 'Your clip') : null),
     el('div', { class: 'card-body' },
       el('b', {}, r.title),
       el('small', {}, r.channel || ''),
     ),
+  );
+}
+
+// The whole loop at a glance, so a first-time visitor knows what each part is for.
+function howItWorks() {
+  const step = (n, title, text) => el('li', {}, el('b', { class: 'howto-n' }, n), el('div', {}, el('h3', {}, title), el('p', {}, text)));
+  return el('section', { class: 'howto' },
+    el('h2', {}, 'How it works'),
+    el('ol', {},
+      step('1', 'Upload a dance', 'Any clip with one dancer. Mimic tracks their body in your browser.'),
+      step('2', 'Learn it slowly', 'A cute mirrored stickman you can slow to 0.25×. The hookstep and steps are found for you.'),
+      step('3', 'Battle on camera', 'Your limbs light up yellow, orange or red when they\'re off, with a tip on what to move.'),
+      step('4', 'Get coached', 'An AI coach picks the step to practise, says what to fix, and sets the speed to drill it at.'),
+    ),
+    el('p', { class: 'howto-more muted small' }, 'Also: ', el('a', { href: '#/party' }, 'Party'), ' with friends on their phones, and Trend Scout to find the original of a trending dance.'),
   );
 }
 
@@ -85,9 +104,10 @@ export function homeScreen() {
       el('p', { class: 'lede' }, 'Learn from a clean, mirrored stickman. Dance it on camera and watch your wrong limbs light up. Then let the coach tell you exactly what to fix.'),
       form,
       el('div', { class: 'or-row' }, el('span', {}, 'or'), uploadBtn, file,
-        el('small', { class: 'muted' }, 'mp4, webm or mov, up to 200 MB. Use a clip you have the rights to.')),
+        el('small', { class: 'muted' }, 'mp4, webm or mov, up to 200 MB.')),
     ),
     statsStrip(),
+    howItWorks(),
     librarySection,
     scoutSection(),
   );

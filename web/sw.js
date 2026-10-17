@@ -6,7 +6,7 @@
 //    first time it's used, so later sessions don't download it again.
 //  - Anything live is never cached: the API, videos, and party rooms.
 
-const VERSION = 'mimic-v3';
+const VERSION = 'mimic-v4';
 const SHELL = [
   '/', '/index.html', '/styles.css', '/manifest.webmanifest', '/icons/icon.svg', '/icons/icon-192.png',
   '/js/main.js', '/js/dom.js', '/js/api.js', '/js/draw.js', '/js/judge.js', '/js/report.js', '/js/fitness.js',

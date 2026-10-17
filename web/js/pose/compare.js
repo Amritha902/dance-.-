@@ -5,7 +5,7 @@
 // up-and-out at any distance. So every bone becomes a unit vector, and each
 // limb is judged by how far its bones point away from the dancer's.
 
-import { LIMBS, JOINTS, seen } from './skeleton.js';
+import { LIMBS, JOINTS, P, seen } from './skeleton.js';
 
 // A limb more than this many degrees off is "wrong" — painted red live.
 export const WRONG_DEG = 50;
@@ -27,6 +27,61 @@ export function limbColorsFor(cmp) {
     if (s) out[l.name] = s.color;
   }
   return out;
+}
+
+// For live cues: each limb's root (shoulder/hip), its middle joint, and its tip.
+const CHAINS = {
+  'left arm': { root: P.lShoulder, mid: P.lElbow, tip: P.lWrist, joint: 'elbow' },
+  'right arm': { root: P.rShoulder, mid: P.rElbow, tip: P.rWrist, joint: 'elbow' },
+  'left leg': { root: P.lHip, mid: P.lKnee, tip: P.lAnkle, joint: 'knee' },
+  'right leg': { root: P.rHip, mid: P.rKnee, tip: P.rAnkle, joint: 'knee' },
+};
+
+const cap = (s) => s[0].toUpperCase() + s.slice(1);
+
+// Where a limb's tip sits, measured from its root in torso lengths, plus how
+// far it is from the body's middle (so "out" means away from you, whichever
+// way the camera faces) and the bend at its middle joint.
+function limbShape(lm, c, aspect) {
+  const pts = [c.root, c.mid, c.tip, P.lShoulder, P.rShoulder, P.lHip, P.rHip];
+  if (!pts.every((i) => seen(lm[i]))) return null;
+  const X = (i) => lm[i][0] * aspect, Y = (i) => lm[i][1];
+  const midX = (X(P.lShoulder) + X(P.rShoulder) + X(P.lHip) + X(P.rHip)) / 4;
+  const torso = Math.hypot((X(P.lShoulder) + X(P.rShoulder) - X(P.lHip) - X(P.rHip)) / 2,
+    (Y(P.lShoulder) + Y(P.rShoulder) - Y(P.lHip) - Y(P.rHip)) / 2) || 1;
+  const p = dir(lm, c.mid, c.root, aspect), q = dir(lm, c.mid, c.tip, aspect);
+  const bend = p && q ? Math.acos(Math.max(-1, Math.min(1, p[0] * q[0] + p[1] * q[1]))) * 180 / Math.PI : null;
+  return { up: (Y(c.root) - Y(c.tip)) / torso, out: Math.abs(X(c.tip) - midX) / torso, bend };
+}
+
+/**
+ * One thing to fix right now, in words: the furthest-off limb and the single
+ * biggest difference in how it's placed (height, reach or bend).
+ * `ref` must already be in the learner's handedness (as passed to compare).
+ * @returns {null | {limb, level, color, text}}
+ */
+export function liveCue(ref, you, cmp, { refAspect = 1, youAspect = 1 } = {}) {
+  if (!cmp?.limbs?.length) return null;
+  const worst = cmp.limbs.reduce((a, b) => (b.off > a.off ? b : a));
+  const s = severity(worst.off);
+  if (!s) return null;
+  const base = { limb: worst.name, level: s.level, color: s.color };
+  const c = CHAINS[worst.name];
+  if (!c) return { ...base, text: `${cap(worst.name)}: match the dancer's lean` };
+  const r = limbShape(ref, c, refAspect), u = limbShape(you, c, youAspect);
+  if (!r || !u) return { ...base, text: `${cap(worst.name)}: match the dancer's angle` };
+  // Each difference scaled so 1 means "clearly off": a quarter torso of
+  // height or reach, or 30° of bend. The largest one is what to say.
+  const options = [
+    { k: (r.up - u.up) / 0.25, more: 'raise it higher', less: 'bring it lower' },
+    { k: (r.out - u.out) / 0.25, more: 'reach further out', less: 'keep it closer in' },
+    r.bend != null && u.bend != null
+      ? { k: (u.bend - r.bend) / 30, more: `bend the ${c.joint} more`, less: `straighten the ${c.joint}` }
+      : null,
+  ].filter(Boolean);
+  const best = options.reduce((a, b) => (Math.abs(b.k) > Math.abs(a.k) ? b : a));
+  const what = Math.abs(best.k) < 0.6 ? "match the dancer's angle" : best.k > 0 ? best.more : best.less;
+  return { ...base, text: `${cap(worst.name)}: ${what}` };
 }
 
 function dir(lm, a, b, aspect) {

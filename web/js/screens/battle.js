@@ -10,7 +10,7 @@ import { el, prefs, beep, fmtTime } from '../dom.js';
 import { api, mediaUrl } from '../api.js';
 import { poseAt, routineBox, boxOf, easeBox, mirrorBox, sampleRoutine, findHook } from '../pose/timeline.js';
 import { mirror } from '../pose/skeleton.js';
-import { compare, jointAngles, limbColorsFor } from '../pose/compare.js';
+import { compare, jointAngles, limbColorsFor, liveCue, SEVERITY } from '../pose/compare.js';
 import { createLiveTracker } from '../pose/tracker.js';
 import { createJudge, multiplier } from '../judge.js';
 import { drawFigure, fitCanvas } from '../draw.js';
@@ -53,7 +53,13 @@ export async function battleScreen(id, { onFrame, onFinish, region: forced, star
   const pops = el('div', { class: 'pops' });
   const countIn = el('div', { class: 'count-in' });
   const banner = el('div', { class: 'stage-banner' }, 'Starting the camera…');
-  const wrongEl = el('div', { class: 'wrong-list' });
+  // The live cue: one thing to fix right now, in words, in the limb's colour.
+  const cueDot = el('i');
+  const cueText = el('span', {}, '');
+  const wrongEl = el('div', { class: 'wrong-list' }, cueDot, cueText);
+  const LEGEND_WORDS = { yellow: 'slightly off', orange: 'getting there', red: 'wrong' };
+  const legend = el('div', { class: 'limb-legend', 'aria-label': 'What the limb colours mean' },
+    ...[...SEVERITY].reverse().map((s) => el('span', {}, el('i', { style: { background: s.color } }), LEGEND_WORDS[s.level])));
   const kcalEl = el('b', {}, '0.0');
 
   const stage = el('div', { class: 'stage' },
@@ -73,12 +79,24 @@ export async function battleScreen(id, { onFrame, onFinish, region: forced, star
       el('a', { class: 'btn ghost tiny', href: `#/learn/${id}` }, 'Leave'),
     ),
     stage,
+    legend,
   );
 
   const judge = createJudge();
   const burn = createBurn({ weightKg: weightKg() });
   let tracker = null, stream = null, raf = 0, running = false, live = false, you = null, youBox = null, smooth = 0;
   let camAspect = 4 / 3;
+  // A cue stays up at least this long, so it can be read before it changes.
+  const CUE_HOLD_MS = 900;
+  let cueShown = null, cueSince = 0;
+  function showCue(cue, now, fallback = '') {
+    if (cueShown && cue?.text !== cueShown.text && now - cueSince < CUE_HOLD_MS) return;
+    if (cue?.text === cueShown?.text && cue) return;
+    cueShown = cue; cueSince = now;
+    cueText.textContent = cue ? cue.text : fallback;
+    cueDot.style.background = cue ? cue.color : 'transparent';
+    wrongEl.className = `wrong-list${cue ? ` ${cue.level}` : fallback ? ' calm' : ''}`;
+  }
 
   function pop(j) {
     const p = el('div', { class: `pop ${j.label.toLowerCase()}` }, el('b', {}, j.label),
@@ -132,9 +150,11 @@ export async function battleScreen(id, { onFrame, onFinish, region: forced, star
         // Base colour stays clear of the yellow/orange/red scale painted on off limbs.
         color: good ? '#7cf0b8' : '#a9dcff', mood: cmp?.wrong.length ? 'oops' : 'happy',
       });
-      wrongEl.textContent = cmp?.wrong.length ? `Fix: ${cmp.wrong.join(', ')}` : '';
+      const refCmp = mirrored ? ref : mirror(ref);
+      showCue(liveCue(refCmp, you, cmp, { refAspect: pose.aspect, youAspect: camAspect }), performance.now(),
+        cmp ? (good ? 'Looking good, keep it up' : '') : 'Get your whole body in view');
     } else {
-      wrongEl.textContent = 'Step into the frame';
+      showCue(null, performance.now(), 'Step into the frame');
     }
     if (!live) { raf = requestAnimationFrame(draw); return; }
 
