@@ -4,6 +4,8 @@
 
 Trending dances are hard to learn from a fast, un-mirrored video, and nobody tells you *what* you're getting wrong. Mimic turns the dancer into a cute little character (a chibi stickman with a face) that you can mirror, slow down and loop. It then watches you dance it on camera, paints the limb you have wrong in red while you move, and finishes with a coach that names the step, the limb and the fix.
 
+**▶ Try it live: [mimic-3r1u.onrender.com](https://mimic-3r1u.onrender.com)** (free hosting: the first visit after a quiet spell takes about a minute to wake up) · **[Watch the demo video](devpost/media/Mimic-demo.mp4)**
+
 Built for the Devpost **Build With AI: Basics** hackathon with the Devpost Learn skill pack. The planning documents are in [`devpost/`](devpost/): [`scope.md`](devpost/scope.md), [`prd.md`](devpost/prd.md), [`spec.md`](devpost/spec.md) and the build [`checklist.md`](devpost/checklist.md).
 
 ## What it does
