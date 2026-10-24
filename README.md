@@ -37,6 +37,12 @@ Mimic is a **Progressive Web App**: one codebase that installs like an app on bo
 
 Phones only allow the camera over **HTTPS**. To try it from your computer, share it through an HTTPS tunnel, for example `npx localtunnel --port 4173` or `cloudflared tunnel --url http://localhost:4173`, and open that link on the phone. For a permanent link, deploy the server anywhere that runs Node and gives HTTPS (with a persistent disk for `data/`). *Not yet tried on physical phones; see Status.*
 
+## Deploy it
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Amritha902/dance-.-)
+
+`render.yaml` sets everything up; Render asks for the two optional keys. You get an `https://` link, which is what phones need for the camera. On the free plan the app sleeps when idle (the first visit then takes about a minute) and uploaded clips are wiped on restart.
+
 ## Run it
 
 Requires **Node 18+** and a browser with WebGL and a webcam.

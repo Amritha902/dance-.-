@@ -1,0 +1,18 @@
+# One-click deploy on Render (render.com): New → Blueprint → pick this repo.
+# The free plan sleeps when idle (the first visit after that takes about a
+# minute) and its disk is wiped on restart, so uploaded clips don't persist.
+services:
+  - type: web
+    name: mimic
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server/index.js
+    healthCheckPath: /api/config
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: YOUTUBE_API_KEY
+        sync: false
