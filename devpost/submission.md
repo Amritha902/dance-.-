@@ -66,6 +66,23 @@ const TOOLS = [read_report, inspect_step, recall_history, find_cues, give_plan];
 
 ![Learn it slowly from a cute stickman](https://raw.githubusercontent.com/Amritha902/dance-.-/main/devpost/media/2-studio.png)
 
+## ✅ Proof it works
+
+I tested Mimic in a real browser with the real MediaPipe model, feeding the camera from video files so every result has a known right answer:
+
+| Test | What should happen | What happened |
+|---|---|---|
+| Dance the **same** routine back to it | Near-perfect | **7/7 PERFECT, rank S**, joint angles within ~4° |
+| Copy it **face-to-face**, as a mirror | Counted as correct | **Rank A**: the mirror copy is recognised |
+| A **rotated**, deliberately wrong body | Everything flagged | **Every limb red, every judgement MISS** |
+| A clip that repeats every **2.0 s** | Hookstep = 2.0 s | **Found 2.0 s exactly** |
+| A routine built to repeat every **3 s** | Hookstep = 3 s | **Found 3 s** (it said 6 s before I fixed a bug) |
+| Track an 8-second clip | A pose for every frame | **121 body poses** |
+| **Party** in two browsers | Same count-in, shared board | **Counted in together and finished on one leaderboard** |
+| Phone layouts | Fits, no overlap | **Checked at iPhone 13 and Pixel 7 sizes** |
+
+Plus **93 automated tests**: mirroring, scale and position invariance, the live tip's direction, the coach agent loop against a scripted model, Trend Scout's picks, the calorie maths and full Party rounds.
+
 ## 🧗 Challenges I ran into
 
 - **Left vs right is harder than it looks.** My first mirror just flipped the image, so a learner copying face-to-face with their right arm was marked wrong for "using the wrong limb". The fix was a real mirror that reflects **and** swaps body sides, plus drawing your own figure flipped while keeping your limbs' true names.
