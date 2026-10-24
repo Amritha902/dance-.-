@@ -3,23 +3,31 @@
 import Anthropic from '@anthropic-ai/sdk';
 import path from 'node:path';
 import { dataDir, readJson, writeJson } from '../store.js';
-import { gather, sourceName } from './gather.js';
-import { groupBySong } from './labels.js';
+import { gather, sourceName, normaliseRegion } from './gather.js';
+import { groupBySong, kindOf } from './labels.js';
 import { pickByRules } from './rules.js';
 import { pickWithClaude } from './pick.js';
 
 const TTL = 6 * 3600e3;
 const MIN_REFRESH = 10 * 60e3;
-const file = () => path.join(dataDir(), 'scout.json');
+const file = (region) => path.join(dataDir(), region ? `scout-${region}.json` : 'scout.json');
+// Aim for at least this many trends; single uploads fill in when few songs repeat.
+export const MIN_TRENDS = 10;
+const DANCE_WORDS = /danc|choreo|challenge|hook ?step|practice|steps/i;
 
 let client = null;
 export const setScoutClient = (c) => { client = c; };
 const getClient = () => (client ||= new Anthropic());
 
-export async function runScout({ gatherImpl = gather } = {}) {
-  const { source, videos } = await gatherImpl();
-  // A trend is a song with several videos; singletons aren't trends yet.
-  const groups = groupBySong(videos).filter((g) => g.videos.length >= 2).slice(0, 12);
+export async function runScout({ gatherImpl = gather, region = null } = {}) {
+  const { source, videos } = await gatherImpl({ region });
+  // A trend is a song with several videos. When too few songs repeat, the
+  // most-watched single uploads fill the list up to MIN_TRENDS.
+  const all = groupBySong(videos);
+  const multi = all.filter((g) => g.videos.length >= 2);
+  const singles = all.filter((g) => g.videos.length < 2 && kindOf(g.videos[0].title) === 'candidate' && DANCE_WORDS.test(g.videos[0].title))
+    .sort((a, b) => (b.videos[0].views || 0) - (a.videos[0].views || 0));
+  const groups = [...multi, ...singles.slice(0, Math.max(0, MIN_TRENDS - multi.length))].slice(0, 15);
   let picks, picker;
   if (process.env.MIMIC_COACH === 'offline' || !groups.length) {
     picks = groups.map((g) => ({ ...pickByRules(g), by: 'rules' }));
@@ -35,7 +43,7 @@ export async function runScout({ gatherImpl = gather } = {}) {
     }
   }
   return {
-    at: new Date().toISOString(), source, picker,
+    at: new Date().toISOString(), source, picker, region,
     groups: groups.map((g, i) => {
       const original = g.videos.find((v) => v.id === picks[i].original);
       return {
@@ -48,16 +56,17 @@ export async function runScout({ gatherImpl = gather } = {}) {
   };
 }
 
-export async function scout({ refresh = false, ...opts } = {}) {
-  let cached = await readJson(file());
+export async function scout({ refresh = false, region: wanted = null, ...opts } = {}) {
+  const region = normaliseRegion(wanted);
+  let cached = await readJson(file(region));
   // Never serve results from a source that's now switched off (e.g. yt-dlp
   // results cached before compliance mode was turned on).
   if (cached && cached.source !== sourceName()) cached = null;
   const age = cached ? Date.now() - Date.parse(cached.at) : Infinity;
   if (cached && (age < TTL) && !(refresh && age > MIN_REFRESH)) return cached;
   try {
-    const fresh = await runScout(opts);
-    await writeJson(file(), fresh);
+    const fresh = await runScout({ ...opts, region });
+    await writeJson(file(region), fresh);
     return fresh;
   } catch (e) {
     if (cached) return { ...cached, stale: true, error: e.message };

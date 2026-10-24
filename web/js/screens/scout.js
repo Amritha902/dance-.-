@@ -7,7 +7,7 @@ import { api } from '../api.js';
 const fmtViews = (n) => (n == null ? '' : n >= 1e6 ? `${(n / 1e6).toFixed(1)}M views` : n >= 1e3 ? `${Math.round(n / 1e3)}K views` : `${n} views`);
 const fmtDate = (ymd) => (ymd ? `${ymd.slice(0, 4)}-${ymd.slice(4, 6)}-${ymd.slice(6, 8)}` : '');
 
-function trendCard(g, links) {
+export function trendCard(g, links) {
   const o = g.original;
   const counts = {};
   for (const x of g.others) counts[x.label] = (counts[x.label] || 0) + 1;
@@ -37,7 +37,7 @@ function trendCard(g, links) {
   );
 }
 
-const HOW = el('details', { class: 'how' },
+export const HOW = el('details', { class: 'how' },
   el('summary', {}, 'How Trend Scout decides'),
   el('ol', {},
     el('li', {}, el('b', {}, 'Gather. '), 'Searches YouTube for recent dance-challenge, dance-practice and choreography videos, with the official YouTube Data API when a key is set.'),
@@ -68,7 +68,8 @@ export function scoutSection() {
       const data = await api.scout(force);
       meta.textContent = `${data.source === 'youtube-api' ? 'YouTube Data API' : 'yt-dlp search'} · ${data.picker === 'claude' ? 'picked by Claude' : 'picked by rules'} · ${new Date(data.at).toLocaleString()}${data.stale ? ' · stale' : ''}`;
       grid.replaceChildren(...(data.groups.length
-        ? data.groups.map((g) => trendCard(g, cfg.links))
+        ? [...data.groups.slice(0, 4).map((g) => trendCard(g, cfg.links)),
+          el('a', { class: 'btn ghost see-all', href: '#/trending' }, `See all ${data.groups.length} trending dances, or what's trending near you →`)]
         : [el('p', { class: 'muted small' }, 'No trends found right now. Try Refresh later.')]));
     } catch (e) {
       grid.replaceChildren(el('p', { class: 'muted small' }, e.message));

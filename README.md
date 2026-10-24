@@ -17,7 +17,8 @@ Built for the Devpost **Build With AI: Basics** hackathon with the Devpost Learn
 | **Learn it slower** | Under the Studio: tutorials, mirrored and slowed versions of the same dance, most helpful first (reactions and covers left out). Type the song name if your clip is called something like IMG_2041. |
 | **Battle** | Dance it on camera. You're judged about twice a second (PERFECT … MISS), with a combo and a rank. **Off limbs light up live on a scale: yellow (slightly off), orange (getting there), red (50°+ off)**, with a legend under the stage and a live tip in words for the worst limb, e.g. "Left leg: bend the knee more" or "Right arm: raise it higher". |
 | **AI coach** | After the song, a Claude agent reads your run step by step, recalls your earlier attempts, pulls cues from a teaching library, and gives you one plan: which step, what to fix in your body, what speed, and what improved. **Drill** opens that step at that speed. |
-| **Trend Scout** | Dances trending now, each traced back to its **original choreography** (not covers, tutorials or mirrored re-uploads), showing who decided (Claude or rules) and why. |
+| **Trending** | At least 10 dances trending now, each traced back to its **original choreography** (not covers, tutorials or mirrored re-uploads), showing who decided (Claude or rules) and why. **Trending near you** picks your country from your device's time zone (no location prompt), or choose from 13 countries. |
+| **Menu** | A ☰ menu with everything one tap away: Dance live, Trending now, Trending near you, My routines, Party, My progress, How it works, Get the app, Settings. Phones get a bottom bar: Home · Live · Trending · Party · Menu. |
 | **Workout** | Live calorie estimate, intensity, daily streak and lifetime totals. |
 | **Party** | Friends on their own phones join a 4-letter room. Everyone counts in to the same instant, with a live room leaderboard. |
 | **iPhone and Android app** | An installable app (PWA) from the same code: add it to the Home Screen and it opens full-screen with its own icon. Phone-first layout with a bottom tab bar, safe areas for the notch, and a tap to start that unlocks sound on iPhone. |
@@ -78,7 +79,7 @@ Phones on the same Wi-Fi can open the computer's address (the room screen shows 
 npm test
 ```
 
-93 tests, run with Node's built-in runner, cover:
+97 tests, run with Node's built-in runner, cover:
 - link parsing, uploads, pose caching and path safety;
 - true mirroring, interpolation and framing;
 - step cutting, hookstep detection and tempo on routines with known answers;

@@ -8,7 +8,7 @@ import { party } from '../party-client.js';
 import { battleScreen } from './battle.js';
 
 function roster(room, { showReady = false, showScore = false } = {}) {
-  const players = [...room.players].sort((a, b) => (showScore ? b.score - a.score : 0));
+  const players = [...room.players].sort((a, b) => (showScore ? (b.score - a.score) || ((b.accuracy || 0) - (a.accuracy || 0)) : 0));
   return el('ol', { class: 'roster' }, ...players.map((p, i) => el('li', { class: p.id === party.you ? 'you' : '' },
     showScore ? el('b', { class: 'pos' }, i + 1) : null,
     el('span', { class: 'nm' }, p.name, p.id === room.host ? el('small', {}, ' host') : null),
@@ -89,7 +89,7 @@ export function partyScreen() {
 
   function results(room) {
     const isHost = room.host === party.you;
-    const winner = [...room.players].sort((a, b) => b.score - a.score)[0];
+    const winner = [...room.players].sort((a, b) => (b.score - a.score) || ((b.accuracy || 0) - (a.accuracy || 0)))[0];
     return el('div', { class: 'party-room' },
       el('p', { class: 'eyebrow' }, room.routine?.title || ''),
       el('h1', { class: 'center' }, `${winner.name} wins!`),
@@ -121,7 +121,7 @@ export async function partyPlayScreen(id) {
   const start = party.lastStart;
   if (!party.room || !start || start.routineId !== id) { location.hash = '#/party'; return { node: el('div') }; }
   const board = el('div', { class: 'stage-roster' });
-  const paintBoard = () => board.replaceChildren(...[...party.room.players].sort((a, b) => b.score - a.score)
+  const paintBoard = () => board.replaceChildren(...[...party.room.players].sort((a, b) => (b.score - a.score) || ((b.accuracy || 0) - (a.accuracy || 0)))
     .map((p) => el('div', { class: p.id === party.you ? 'you' : '' }, el('span', {}, p.name), el('b', {}, p.score.toLocaleString()))));
   const off = party.on((m) => { if ((m.type === 'score' || m.type === 'room') && party.room) paintBoard(); });
   let lastSent = 0;

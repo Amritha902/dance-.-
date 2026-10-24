@@ -10,7 +10,8 @@ import { fileURLToPath } from 'node:url';
 import { kindOf, songTokens, groupBySong, officialSignals } from '../server/scout/labels.js';
 import { pickByRules } from '../server/scout/rules.js';
 import { pickWithClaude, PICK_TOOL } from '../server/scout/pick.js';
-import { viaYouTubeApi, isoSeconds } from '../server/scout/gather.js';
+import { viaYouTubeApi, isoSeconds, normaliseRegion } from '../server/scout/gather.js';
+import { runScout, MIN_TRENDS } from '../server/scout/index.js';
 
 const v = (id, title, channel, uploaded, views = 1000) => ({ id, title, channel, uploaded, views, duration: 60, thumbnail: '' });
 // Ids are 11 characters, like YouTube's.
@@ -103,6 +104,31 @@ test('the official YouTube Data API responses are read correctly', async () => {
   await assert.rejects(viaYouTubeApi('BAD', { fetchImpl: async () => ({ ok: false, status: 403 }) }), /YOUTUBE_API_KEY/);
 });
 
+test('few repeating songs: single dance uploads fill the list to at least 10, never a vlog or a cover', async () => {
+  const singles = Array.from({ length: 14 }, (_, i) => v(`dddddddd${String(i).padStart(3, '0')}`, `Song${i} official dance challenge`, `Ch${i}`, '20261010', 1000 + i));
+  const extra = [v('eeeeeeeeee1', 'Another vlog day', 'Me', '20261010', 9e9), v('eeeeeeeeee2', 'Zeta dance cover', 'Me', '20261010', 9e9)];
+  const prev = process.env.MIMIC_COACH; process.env.MIMIC_COACH = 'offline';
+  try {
+    const r = await runScout({ gatherImpl: async () => ({ source: 'test', videos: [...FEED, ...singles, ...extra] }) });
+    assert.ok(r.groups.length >= MIN_TRENDS, `only ${r.groups.length} trends`);
+    const ids = r.groups.map((g) => g.original.id);
+    assert.ok(!ids.includes('eeeeeeeeee1') && !ids.includes('eeeeeeeeee2') && !ids.includes('cccccccccc1'));
+    assert.ok(ids.includes('aaaaaaaaaa1'), 'real multi-video trends still come first');
+  } finally { process.env.MIMIC_COACH = prev; }
+});
+
+test('regions: only known country codes are used, and they reach the official API', async () => {
+  assert.equal(normaliseRegion('in'), 'IN');
+  assert.equal(normaliseRegion('XX'), null);
+  assert.equal(normaliseRegion('../etc'), null);
+  const calls = [];
+  const fetchImpl = async (u) => { calls.push(new URL(u)); return { ok: true, json: async () => ({ items: [] }) }; };
+  await viaYouTubeApi('KEY', { fetchImpl, region: 'IN' });
+  const searches = calls.filter((u) => u.pathname.endsWith('/search'));
+  assert.ok(searches.length && searches.every((u) => u.searchParams.get('regionCode') === 'IN'));
+  assert.ok(searches.some((u) => /bollywood/.test(u.searchParams.get('q'))));
+});
+
 // ---------- the route, with yt-dlp stubbed ----------
 const here = path.dirname(fileURLToPath(import.meta.url));
 const dir = mkdtempSync(path.join(tmpdir(), 'mimic-scout-'));
@@ -127,7 +153,7 @@ test('GET /api/scout returns trends with originals, reasons and labelled others;
   const neon = a.groups.find((g) => g.original.id === 'aaaaaaaaaa1');
   assert.ok(neon, 'the official practice video is the original');
   assert.equal(neon.others.length, 3);
-  assert.ok(!a.groups.some((g) => g.original.id === 'cccccccccc1'), 'a lone video is not a trend');
+  assert.ok(!a.groups.some((g) => g.original.id === 'cccccccccc1'), 'a lone non-dance video is not a trend');
   const b = await fetch(`${base}/api/scout`).then((r) => r.json());
   assert.equal(b.at, a.at, 'served from the cache');
 });

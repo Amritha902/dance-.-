@@ -9,7 +9,7 @@ import { routineFile, readJson, writeJson, ROUTINE_ID } from '../store.js';
 import { runCoach, cleanReport, COACH_MODEL } from './agent.js';
 import { offlinePlan } from './offline.js';
 import { scout } from '../scout/index.js';
-import { sourceName, ytdlpAllowed } from '../scout/gather.js';
+import { sourceName, ytdlpAllowed, REGIONS } from '../scout/gather.js';
 
 // Credentials resolve the SDK's usual way: ANTHROPIC_API_KEY, or a profile
 // from `ant auth login`. MIMIC_COACH=offline forces the rule-based coach.
@@ -51,14 +51,14 @@ export function coachRouter() {
       // Addresses other devices on the same network can reach this server at.
       lan: Object.values(networkInterfaces()).flat()
         .filter((n) => n && n.family === 'IPv4' && !n.internal).map((n) => n.address),
-      scout: { source: sourceName() },
+      scout: { source: sourceName(), regions: Object.fromEntries(Object.entries(REGIONS).map(([k, v]) => [k, v.name])) },
     });
   });
 
   // Trend Scout: trending dances, each traced to its original choreography.
   r.get('/api/scout', async (req, res) => {
     try {
-      res.json(await scout({ refresh: req.query.refresh === '1' }));
+      res.json(await scout({ refresh: req.query.refresh === '1', region: req.query.region }));
     } catch (e) {
       res.status(e.code === 'NO_SOURCE' ? 503 : 502).json({ error: e.message });
     }

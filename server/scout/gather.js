@@ -11,7 +11,27 @@ import { search as ytdlpSearch } from '../youtube.js';
 
 export const QUERIES = [
   'dance challenge', 'kpop dance practice', 'choreography video', 'bollywood hook step dance', 'dance trend tutorial',
+  'viral dance trend', 'reels dance trend',
 ];
+
+// Countries Trend Scout can look in. YouTube's regionCode biases search to
+// what's watched there; a couple of extra queries add each place's own scene.
+export const REGIONS = {
+  IN: { name: 'India', extra: ['bollywood dance trend', 'tamil song dance trend'] },
+  US: { name: 'United States', extra: ['tiktok dance trend'] },
+  GB: { name: 'United Kingdom', extra: ['tiktok dance trend'] },
+  KR: { name: 'South Korea', extra: ['kpop dance challenge'] },
+  JP: { name: 'Japan', extra: ['jpop dance challenge'] },
+  PH: { name: 'Philippines', extra: ['tiktok dance trend'] },
+  ID: { name: 'Indonesia', extra: ['tiktok dance trend'] },
+  BR: { name: 'Brazil', extra: ['funk dance trend'] },
+  MX: { name: 'Mexico', extra: ['baile tendencia'] },
+  NG: { name: 'Nigeria', extra: ['afrobeats dance challenge'] },
+  AE: { name: 'United Arab Emirates', extra: ['arabic dance trend'] },
+  AU: { name: 'Australia', extra: ['tiktok dance trend'] },
+  CA: { name: 'Canada', extra: ['tiktok dance trend'] },
+};
+export const normaliseRegion = (r) => (typeof r === 'string' && REGIONS[r.toUpperCase()] ? r.toUpperCase() : null);
 const WINDOW_DAYS = 21;
 
 // Compliance mode is the default: no YouTube downloads and no scraping unless
@@ -30,12 +50,13 @@ const API = 'https://www.googleapis.com/youtube/v3';
 
 // Official API: search.list for ids (100 quota units per query), then one
 // videos.list call per 50 ids (1 unit) for views and duration.
-export async function apiSearch(queries, key, { fetchImpl = fetch, publishedAfter = null, max = 12, order = 'viewCount' } = {}) {
+export async function apiSearch(queries, key, { fetchImpl = fetch, publishedAfter = null, max = 12, order = 'viewCount', region = null } = {}) {
   const ids = new Set();
   for (const q of queries) {
     const u = new URL(`${API}/search`);
     const params = { part: 'snippet', type: 'video', q, order, maxResults: String(max), key };
     if (publishedAfter) params.publishedAfter = publishedAfter;
+    if (region) params.regionCode = region;
     Object.entries(params).forEach(([k, v]) => u.searchParams.set(k, v));
     const res = await fetchImpl(u);
     if (!res.ok) throw new Error(`YouTube Data API search failed (${res.status}). Check YOUTUBE_API_KEY.`);
@@ -61,8 +82,9 @@ export async function apiSearch(queries, key, { fetchImpl = fetch, publishedAfte
   return out;
 }
 
-export function viaYouTubeApi(key, { fetchImpl = fetch, now = Date.now() } = {}) {
-  return apiSearch(QUERIES, key, { fetchImpl, publishedAfter: new Date(now - WINDOW_DAYS * 864e5).toISOString() });
+export function viaYouTubeApi(key, { fetchImpl = fetch, now = Date.now(), region = null } = {}) {
+  const queries = region ? [...QUERIES.slice(0, 5), ...REGIONS[region].extra] : QUERIES;
+  return apiSearch(queries, key, { fetchImpl, region, max: 15, publishedAfter: new Date(now - WINDOW_DAYS * 864e5).toISOString() });
 }
 
 /**

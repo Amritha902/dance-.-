@@ -25,7 +25,7 @@ export const api = {
   savePose: (id, pose) => call('PUT', `/api/routines/${id}/pose`, pose),
   coach: (id, report) => call('POST', `/api/routines/${id}/coach`, { report }),
   config: () => call('GET', '/api/config'),
-  scout: (refresh) => call('GET', `/api/scout${refresh ? '?refresh=1' : ''}`),
+  scout: (refresh, region) => call('GET', `/api/scout?${new URLSearchParams({ ...(refresh ? { refresh: '1' } : {}), ...(region ? { region } : {}) })}`),
   related: (id, q) => call('GET', `/api/routines/${id}/related${q ? `?q=${encodeURIComponent(q)}` : ''}`),
   scores: (id) => call('GET', `/api/routines/${id}/scores`),
   postScore: (id, entry) => call('POST', `/api/routines/${id}/scores`, entry),

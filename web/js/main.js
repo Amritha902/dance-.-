@@ -11,6 +11,8 @@ import { battleScreen } from './screens/battle.js';
 import { resultsScreen } from './screens/results.js';
 import { settingsScreen } from './screens/settings.js';
 import { partyScreen, partyPlayScreen } from './screens/party.js';
+import { trendingScreen } from './screens/trending.js';
+import { liveScreen, libraryScreen, progressScreen, howScreen } from './screens/more.js';
 
 const routes = [
   [/^#?\/?$/, () => homeScreen()],
@@ -21,6 +23,12 @@ const routes = [
   [/^#\/settings$/, () => settingsScreen()],
   [/^#\/party$/, () => partyScreen()],
   [/^#\/party\/play\/([\w-]{11})$/, (id) => partyPlayScreen(id)],
+  [/^#\/live$/, () => liveScreen()],
+  [/^#\/trending$/, () => trendingScreen(false)],
+  [/^#\/trending\/near$/, () => trendingScreen(true)],
+  [/^#\/library$/, () => libraryScreen()],
+  [/^#\/progress$/, () => progressScreen()],
+  [/^#\/how$/, () => howScreen()],
 ];
 
 export function registerRoute(pattern, make) {
@@ -30,33 +38,65 @@ export function registerRoute(pattern, make) {
 const app = $('#app');
 let current = null;
 
-// Phones get a bottom tab bar (thumb reach, like a native app); larger
-// screens keep links in the top bar.
-const TABS = [['Home', '#/', '⌂'], ['Party', '#/party', '✦'], ['Settings', '#/settings', '⚙']];
-function tabbar() {
+// The menu: everything Mimic does, one tap away. Larger screens show the
+// main ones in the top bar too; phones get a bottom tab bar (thumb reach,
+// like a native app) whose last tab opens the full menu.
+const MENU = [
+  ['Home', '#/', '⌂'],
+  ['Dance live', '#/live', '🔴'],
+  ['Trending now', '#/trending', '🔥'],
+  ['Trending near you', '#/trending/near', '📍'],
+  ['My routines', '#/library', '📚'],
+  ['Party with friends', '#/party', '🎉'],
+  ['My progress', '#/progress', '📈'],
+  ['How it works', '#/how', '💡'],
+  ['Get the app', '#/settings', '📲'],
+  ['Settings', '#/settings', '⚙'],
+];
+const TABS = [['Home', '#/', '⌂'], ['Live', '#/live', '🔴'], ['Trending', '#/trending', '🔥'], ['Party', '#/party', '🎉']];
+const isHere = (href) => {
   const here = location.hash || '#/';
-  return el('nav', { class: 'tabbar' }, ...TABS.map(([label, href, glyph]) =>
-    el('a', { href, class: (href === '#/' ? here === '#/' || here === '#' : here.startsWith(href)) ? 'on' : '' },
-      el('span', { class: 'glyph', 'aria-hidden': 'true' }, glyph), label)));
+  return href === '#/' ? here === '#/' || here === '#' : here === href;
+};
+
+function drawer() {
+  const close = () => document.body.classList.remove('menu-open');
+  return el('div', { class: 'drawer', onclick: (e) => { if (e.target.classList.contains('drawer') || e.target.closest('a')) close(); } },
+    el('nav', { class: 'drawer-panel', 'aria-label': 'Menu' },
+      el('div', { class: 'drawer-head' }, el('b', { class: 'brand' }, 'Mimic'), el('button', { class: 'icon-btn', 'aria-label': 'Close menu', onclick: close }, '✕')),
+      ...MENU.map(([label, href, glyph]) => el('a', { href, class: isHere(href) ? 'on' : '' }, el('span', { class: 'glyph', 'aria-hidden': 'true' }, glyph), label))));
+}
+const openMenu = () => document.body.classList.add('menu-open');
+addEventListener('keydown', (e) => { if (e.key === 'Escape') document.body.classList.remove('menu-open'); });
+
+function tabbar() {
+  return el('nav', { class: 'tabbar' },
+    ...TABS.map(([label, href, glyph]) =>
+      el('a', { href, class: isHere(href) ? 'on' : '' }, el('span', { class: 'glyph', 'aria-hidden': 'true' }, glyph), label)),
+    el('button', { type: 'button', onclick: openMenu }, el('span', { class: 'glyph', 'aria-hidden': 'true' }, '☰'), 'Menu'));
 }
 
 function shell(content) {
   return el('div', { class: 'shell' },
     el('header', { class: 'topbar' },
       el('a', { class: 'brand', href: '#/' }, 'Mimic', el('small', {}, 'learn the move')),
-      el('nav', { class: 'nav' }, ...navLinks()),
+      el('div', { class: 'topbar-right' },
+        el('nav', { class: 'nav' }, ...navLinks()),
+        el('button', { class: 'icon-btn menu-btn', 'aria-label': 'Open menu', onclick: openMenu }, '☰')),
     ),
     el('main', { class: 'page' }, content),
     tabbar(),
+    drawer(),
   );
 }
 
-const extraNav = [['Party', '#/party'], ['Settings', '#/settings']];
+const extraNav = [['Dance live', '#/live'], ['Trending', '#/trending'], ['Party', '#/party']];
 export const addNav = (label, href) => extraNav.push([label, href]);
-const navLinks = () => extraNav.map(([label, href]) => el('a', { href }, label));
+const navLinks = () => extraNav.map(([label, href]) => el('a', { href, class: isHere(href) ? 'on' : '' }, label));
 
 async function render() {
   const hash = location.hash || '#/';
+  document.body.classList.remove('menu-open');
   try { current?.destroy?.(); } catch { /* best effort */ }
   current = null;
   for (const [pattern, make] of routes) {

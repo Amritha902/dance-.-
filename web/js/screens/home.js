@@ -21,7 +21,7 @@ export function routineCard(r) {
 }
 
 // The whole loop at a glance, so a first-time visitor knows what each part is for.
-function howItWorks() {
+export function howItWorks() {
   const step = (n, title, text) => el('li', {}, el('b', { class: 'howto-n' }, n), el('div', {}, el('h3', {}, title), el('p', {}, text)));
   return el('section', { class: 'howto' },
     el('h2', {}, 'How it works'),
