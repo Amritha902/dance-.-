@@ -116,6 +116,8 @@ Plus **93 automated tests**: mirroring, scale and position invariance, the live 
 
 ---
 
+🎬 **Demo video:** [youtu.be/qF2wlMYFuhA](https://youtu.be/qF2wlMYFuhA)
+
 ▶ **Try it live:** [mimic-3r1u.onrender.com](https://mimic-3r1u.onrender.com) (free hosting: give the first load about a minute)
 
 🔗 **Code:** [github.com/Amritha902/dance-.-](https://github.com/Amritha902/dance-.-) · MIT licensed · planning documents in `devpost/` (scope, PRD and spec)
