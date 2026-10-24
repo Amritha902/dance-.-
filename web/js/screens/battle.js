@@ -212,7 +212,18 @@ export async function battleScreen(id, { onFrame, onFinish, region: forced, star
     camAspect = (cam.videoWidth / cam.videoHeight) || 4 / 3;
     banner.textContent = 'Loading the body tracker…';
     tracker = await createLiveTracker(cam);
-    if (refVideo.readyState < 1) await new Promise((r) => refVideo.addEventListener('loadedmetadata', r, { once: true }));
+    if (refVideo.readyState < 1) {
+      const ok = refVideo.error ? false : await new Promise((r) => {
+        refVideo.addEventListener('loadedmetadata', () => r(true), { once: true });
+        refVideo.addEventListener('error', () => r(false), { once: true });
+      });
+      if (!ok) {
+        banner.textContent = 'This browser can\'t play this routine\'s video. Try Chrome or Safari, or re-export the clip as an H.264 MP4.';
+        banner.classList.add('bad');
+        tracker?.close(); tracker = null;
+        return;
+      }
+    }
     refVideo.currentTime = region.start;
     refVideo.playbackRate = 1;
 
