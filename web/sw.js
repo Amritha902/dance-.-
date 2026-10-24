@@ -6,14 +6,14 @@
 //    first time it's used, so later sessions don't download it again.
 //  - Anything live is never cached: the API, videos, and party rooms.
 
-const VERSION = 'mimic-v5';
+const VERSION = 'mimic-v6';
 const SHELL = [
   '/', '/index.html', '/styles.css', '/manifest.webmanifest', '/icons/icon.svg', '/icons/icon-192.png',
   '/js/main.js', '/js/dom.js', '/js/api.js', '/js/draw.js', '/js/judge.js', '/js/report.js', '/js/fitness.js',
   '/js/party-client.js', '/js/pwa.js',
   '/js/pose/skeleton.js', '/js/pose/timeline.js', '/js/pose/compare.js', '/js/pose/tracker.js',
   '/js/screens/home.js', '/js/screens/preparing.js', '/js/screens/studio.js', '/js/screens/battle.js',
-  '/js/screens/results.js', '/js/screens/settings.js', '/js/screens/party.js', '/js/screens/scout.js', '/js/screens/related.js', '/js/screens/trending.js', '/js/screens/more.js', '/js/region.js',
+  '/js/screens/results.js', '/js/screens/settings.js', '/js/screens/party.js', '/js/screens/scout.js', '/js/screens/related.js', '/js/screens/trending.js', '/js/screens/more.js', '/js/region.js', '/js/screens/search.js', '/js/screens/watch.js',
 ];
 
 self.addEventListener('install', (e) => {

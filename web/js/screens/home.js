@@ -4,15 +4,16 @@ import { el, toast } from '../dom.js';
 import { api, mediaUrl } from '../api.js';
 import { readLog, streakFrom } from '../fitness.js';
 import { scoutSection } from './scout.js';
+import { searchField, EXAMPLES } from './search.js';
 
 export function routineCard(r) {
   return el('a', { class: 'card', href: `#/learn/${r.id}` },
     el('div', { class: 'thumb', style: r.thumbnail ? { backgroundImage: `url("${r.thumbnail}")` } : null },
       // An uploaded clip has no thumbnail: show a frame from the clip itself.
-      !r.thumbnail && r.source === 'upload'
+      !r.thumbnail && (r.source === 'upload' || r.source === 'starter')
         ? el('video', { class: 'thumb-frame', src: `${mediaUrl(r.id)}#t=0.5`, muted: true, playsInline: true, preload: 'metadata', 'aria-hidden': 'true' })
         : null,
-      r.source === 'upload' ? el('span', { class: 'chip' }, 'Your clip') : null),
+      r.source === 'upload' ? el('span', { class: 'chip' }, 'Your clip') : r.source === 'starter' ? el('span', { class: 'chip starter' }, '✨ Start here') : null),
     el('div', { class: 'card-body' },
       el('b', {}, r.title),
       el('small', {}, r.channel || ''),
@@ -98,10 +99,16 @@ export function homeScreen() {
     librarySection.hidden = false;
   }).catch(() => {});
 
+  const goSearch = (q) => { location.hash = `#/search/${encodeURIComponent(q)}`; };
+  const search = searchField({ onSearch: goSearch });
   const node = el('div', { class: 'home' },
     el('section', { class: 'hero' },
       el('h1', {}, 'Any dance. ', el('em', {}, 'In your body.')),
       el('p', { class: 'lede' }, 'Learn from a clean, mirrored stickman. Dance it on camera and watch your wrong limbs light up. Then let the coach tell you exactly what to fix.'),
+      search.form,
+      el('div', { class: 'chips-row' }, el('small', { class: 'muted' }, 'Try:'),
+        ...EXAMPLES.slice(0, 4).map((q) => el('button', { class: 'chip-btn', type: 'button', onclick: () => goSearch(q) }, q)),
+        el('a', { class: 'chip-btn warm', href: '#/live' }, '🔴 Dance the warm-up now')),
       form,
       el('div', { class: 'or-row' }, el('span', {}, 'or'), uploadBtn, file,
         el('small', { class: 'muted' }, 'mp4, webm or mov, up to 200 MB.')),
@@ -117,5 +124,5 @@ export function homeScreen() {
     form.hidden = true;
     node.querySelector('.or-row > span').textContent = 'Upload a dance clip you have the rights to:';
   }).catch(() => {});
-  return { node, mounted: () => input.focus() };
+  return { node };
 }

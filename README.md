@@ -4,7 +4,13 @@
 
 Trending dances are hard to learn from a fast, un-mirrored video, and nobody tells you *what* you're getting wrong. Mimic turns the dancer into a cute little character (a chibi stickman with a face) that you can mirror, slow down and loop. It then watches you dance it on camera, paints the limb you have wrong in red while you move, and finishes with a coach that names the step, the limb and the fix.
 
-**▶ Try it live: [mimic-3r1u.onrender.com](https://mimic-3r1u.onrender.com)** (free hosting: the first visit after a quiet spell takes about a minute to wake up) · **[Watch the demo on YouTube](https://youtu.be/qF2wlMYFuhA)**
+| | |
+|---|---|
+| ▶ **Live app** | **[mimic-3r1u.onrender.com](https://mimic-3r1u.onrender.com)** (free hosting: the first visit after a quiet spell takes about a minute to wake up) |
+| 🎬 **Demo video** | [youtu.be/qF2wlMYFuhA](https://youtu.be/qF2wlMYFuhA) |
+| 🏆 **Devpost** | [Mimic: The AI Dance Coach That Tells You What to Fix](https://devpost.com/software/mimic-the-ai-dance-coach-that-tells-you-what-to-fix) |
+
+**Try it in 30 seconds:** open the live app → **🔴 Dance live** → **Mimic Warm-up** → allow the camera → dance. Or **🔎 Search** a song (Tamil, Telugu, Bollywood, K-pop…) to practise its dance mirrored and slowed down.
 
 Built for the Devpost **Build With AI: Basics** hackathon with the Devpost Learn skill pack. The planning documents are in [`devpost/`](devpost/): [`scope.md`](devpost/scope.md), [`prd.md`](devpost/prd.md), [`spec.md`](devpost/spec.md) and the build [`checklist.md`](devpost/checklist.md).
 
@@ -12,6 +18,8 @@ Built for the Devpost **Build With AI: Basics** hackathon with the Devpost Learn
 
 | | |
 |---|---|
+| **Search a song** | Type any song, or tap one from the Tamil (including Sai Abhyankar), Telugu, Bollywood, K-pop and Global shelves. Its dance videos pop up, originals first, then tutorials and mirrored versions. Each one opens in a **practice player**: mirror it, slow it to 0.25×, loop the hard part, and dance along with your own camera beside it. |
+| **Mimic Warm-up** | A built-in 16-second original routine (written as code in `scripts/make-starter.mjs`), so you can dance and be scored the moment you arrive, before uploading anything. |
 | **Get a routine** | Upload a dance clip (mp4, webm or mov). Pasting a YouTube link is an opt-in extra. The dancer's body is tracked once, in your browser, and cached. |
 | **Studio** | Video and stickman play in sync. Mirror it (a true mirror that swaps left and right, not just a flipped picture), slow it to 0.25×, and loop the **hookstep** (found automatically) or any of the auto-cut **steps**. |
 | **Learn it slower** | Under the Studio: tutorials, mirrored and slowed versions of the same dance, most helpful first (reactions and covers left out). Type the song name if your clip is called something like IMG_2041. |
@@ -79,7 +87,7 @@ Phones on the same Wi-Fi can open the computer's address (the room screen shows 
 npm test
 ```
 
-97 tests, run with Node's built-in runner, cover:
+100 tests, run with Node's built-in runner, cover:
 - link parsing, uploads, pose caching and path safety;
 - true mirroring, interpolation and framing;
 - step cutting, hookstep detection and tempo on routines with known answers;

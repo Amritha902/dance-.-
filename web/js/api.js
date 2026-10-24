@@ -27,6 +27,7 @@ export const api = {
   config: () => call('GET', '/api/config'),
   scout: (refresh, region) => call('GET', `/api/scout?${new URLSearchParams({ ...(refresh ? { refresh: '1' } : {}), ...(region ? { region } : {}) })}`),
   related: (id, q) => call('GET', `/api/routines/${id}/related${q ? `?q=${encodeURIComponent(q)}` : ''}`),
+  search: (q) => call('GET', `/api/search?q=${encodeURIComponent(q)}`),
   scores: (id) => call('GET', `/api/routines/${id}/scores`),
   postScore: (id, entry) => call('POST', `/api/routines/${id}/scores`, entry),
 };

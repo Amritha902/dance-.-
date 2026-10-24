@@ -13,6 +13,8 @@ import { settingsScreen } from './screens/settings.js';
 import { partyScreen, partyPlayScreen } from './screens/party.js';
 import { trendingScreen } from './screens/trending.js';
 import { liveScreen, libraryScreen, progressScreen, howScreen } from './screens/more.js';
+import { searchScreen } from './screens/search.js';
+import { watchScreen } from './screens/watch.js';
 
 const routes = [
   [/^#?\/?$/, () => homeScreen()],
@@ -29,6 +31,9 @@ const routes = [
   [/^#\/library$/, () => libraryScreen()],
   [/^#\/progress$/, () => progressScreen()],
   [/^#\/how$/, () => howScreen()],
+  [/^#\/search$/, () => searchScreen('')],
+  [/^#\/search\/(.+)$/, (q) => searchScreen(decodeURIComponent(q))],
+  [/^#\/watch\/([\w-]{11})$/, (id) => watchScreen(id)],
 ];
 
 export function registerRoute(pattern, make) {
@@ -43,6 +48,7 @@ let current = null;
 // like a native app) whose last tab opens the full menu.
 const MENU = [
   ['Home', '#/', '⌂'],
+  ['Search a song', '#/search', '🔎'],
   ['Dance live', '#/live', '🔴'],
   ['Trending now', '#/trending', '🔥'],
   ['Trending near you', '#/trending/near', '📍'],
@@ -53,10 +59,10 @@ const MENU = [
   ['Get the app', '#/settings', '📲'],
   ['Settings', '#/settings', '⚙'],
 ];
-const TABS = [['Home', '#/', '⌂'], ['Live', '#/live', '🔴'], ['Trending', '#/trending', '🔥'], ['Party', '#/party', '🎉']];
+const TABS = [['Home', '#/', '⌂'], ['Search', '#/search', '🔎'], ['Live', '#/live', '🔴'], ['Trending', '#/trending', '🔥']];
 const isHere = (href) => {
   const here = location.hash || '#/';
-  return href === '#/' ? here === '#/' || here === '#' : here === href;
+  return href === '#/' ? here === '#/' || here === '#' : here === href || here.startsWith(`${href}/`);
 };
 
 function drawer() {
@@ -90,7 +96,7 @@ function shell(content) {
   );
 }
 
-const extraNav = [['Dance live', '#/live'], ['Trending', '#/trending'], ['Party', '#/party']];
+const extraNav = [['Search', '#/search'], ['Dance live', '#/live'], ['Trending', '#/trending'], ['Party', '#/party']];
 export const addNav = (label, href) => extraNav.push([label, href]);
 const navLinks = () => extraNav.map(([label, href]) => el('a', { href, class: isHere(href) ? 'on' : '' }, label));
 

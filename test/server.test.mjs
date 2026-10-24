@@ -131,3 +131,16 @@ test('the leaderboard keeps the best runs first and cleans what it is sent', asy
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ score: 1 }),
   })).status, 404);
 });
+
+test('the starter routine is seeded once, ready to dance, and never overwritten', async () => {
+  const { ensureStarter, STARTER_ID } = await import('../server/starter.js');
+  assert.equal(await ensureStarter(), true);
+  assert.equal(await ensureStarter(), false, 'second start leaves it alone');
+  const s = await fetch(`${base}/api/routines/${STARTER_ID}`).then((r) => r.json());
+  assert.equal(s.state, 'ready');
+  assert.equal(s.source, 'starter');
+  const pose = await fetch(`${base}/api/routines/${STARTER_ID}/pose`).then((r) => r.json());
+  assert.equal(pose.frames.length, 241);
+  assert.ok(pose.frames.every((f) => f.lm.length === 33));
+  assert.equal((await fetch(`${base}/media/${STARTER_ID}`)).status, 200);
+});

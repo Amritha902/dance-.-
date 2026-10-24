@@ -17,7 +17,7 @@ export const QUERIES = [
 // Countries Trend Scout can look in. YouTube's regionCode biases search to
 // what's watched there; a couple of extra queries add each place's own scene.
 export const REGIONS = {
-  IN: { name: 'India', extra: ['bollywood dance trend', 'tamil song dance trend'] },
+  IN: { name: 'India', extra: ['bollywood dance trend', 'tamil song dance trend', 'sai abhyankar song dance', 'telugu song dance trend'] },
   US: { name: 'United States', extra: ['tiktok dance trend'] },
   GB: { name: 'United Kingdom', extra: ['tiktok dance trend'] },
   KR: { name: 'South Korea', extra: ['kpop dance challenge'] },
