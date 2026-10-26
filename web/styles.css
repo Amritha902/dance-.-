@@ -452,3 +452,19 @@ select.field { appearance: auto; }
 .shelf-row { display: flex; flex-wrap: wrap; gap: 8px; }
 .shelf-row .chip-btn { flex: none; }
 @media (max-width: 700px) { .shelf { grid-template-columns: 1fr; gap: 4px; } .shelf-row { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; } }
+
+/* ---------- badges, daily challenge, share ---------- */
+.badge-grid, .badge-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.badge { display: grid; justify-items: center; text-align: center; gap: 2px; padding: 14px 10px; border-radius: 16px; border: 1px dashed var(--line); color: var(--ink-soft); background: transparent; }
+.badge.earned { border: 1px solid var(--line); background: #fff; color: var(--ink); box-shadow: var(--shadow); }
+.badge .b-icon { font-size: 30px; line-height: 1.2; }
+.badge:not(.earned) .b-icon { opacity: .5; }
+.badge small { font-size: 12px; color: var(--ink-soft); }
+.new-badges { background: var(--accent-wash); border-radius: 22px; padding: 18px 20px; display: grid; gap: 10px; }
+.new-badges h2 { font-size: 22px; }
+.new-badges .badge.earned { animation: badgePop .6s cubic-bezier(.2, 1.6, .4, 1) both; }
+@keyframes badgePop { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+.daily { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; background: #fff; border: 1px solid var(--line); border-left: 6px solid var(--accent); border-radius: 20px; padding: 18px 22px; margin: 0 0 36px; box-shadow: var(--shadow); }
+.daily small { font-weight: 700; color: var(--accent-deep); letter-spacing: .02em; }
+.daily h2 { font-size: 26px; margin: 2px 0; }
+.result-actions { flex-wrap: wrap; }

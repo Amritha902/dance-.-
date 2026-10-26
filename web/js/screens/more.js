@@ -6,6 +6,7 @@ import { api } from '../api.js';
 import { routineCard, howItWorks } from './home.js';
 import { HOW } from './scout.js';
 import { readLog, streakFrom } from '../fitness.js';
+import { BADGES, readEarned } from '../badges.js';
 
 function uploadButton(label = 'Upload a clip') {
   const file = el('input', { type: 'file', accept: 'video/*', hidden: true });
@@ -60,6 +61,12 @@ export function progressScreen() {
       el('section', { class: 'stats' },
         stat(`🔥 ${streakFrom(log.days)}`, 'day streak'), stat(Math.round(log.kcal).toLocaleString(), 'kcal danced off'),
         stat(Math.round(log.seconds / 60).toLocaleString(), 'active minutes'), stat(log.sessions, 'battles')),
+      el('h2', {}, `Badges · ${Object.keys(readEarned()).length} of ${BADGES.length}`),
+      el('div', { class: 'badge-grid' }, ...BADGES.map((b) => {
+        const when = readEarned()[b.id];
+        return el('div', { class: `badge${when ? ' earned' : ''}`, title: when ? `Earned ${new Date(when).toLocaleDateString()}` : 'Not yet' },
+          el('span', { class: 'b-icon' }, when ? b.icon : '🔒'), el('b', {}, b.name), el('small', {}, b.desc));
+      })),
       el('h2', {}, 'Best scores'), best),
   };
 }

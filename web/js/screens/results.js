@@ -5,7 +5,9 @@ import { api } from '../api.js';
 import { sampleRoutine, cutSteps } from '../pose/timeline.js';
 import { buildReport, weakestStep } from '../report.js';
 import { recordWorkout } from '../fitness.js';
-import { prefs } from '../dom.js';
+import { prefs, toast } from '../dom.js';
+import { recordRun } from '../badges.js';
+import { shareResult } from '../share.js';
 
 export function readResult(id) {
   try {
@@ -88,6 +90,8 @@ export function resultsScreen(id) {
   if (r?.workout && !r.logged) {
     const log = recordWorkout({ kcal: r.workout.kcal, seconds: r.workout.activeSeconds });
     r.streak = { days: log.streak, grew: log.streakGrew };
+    r.newBadges = recordRun({ id: r.id, rank: r.rank, bestCombo: r.bestCombo, tally: r.tally, streak: log.streak, totalKcal: log.kcal, party: !!r.party })
+      .map(({ id: bid, icon, name, desc }) => ({ id: bid, icon, name, desc }));
     r.logged = true;
     try { sessionStorage.setItem('mimic.result', JSON.stringify(r)); } catch { /* fine */ }
   }
@@ -100,14 +104,27 @@ export function resultsScreen(id) {
   const reportSlot = el('div');
   const boardSlot = el('div');
 
+  const shareBtn = el('button', { class: 'btn ghost', onclick: async () => {
+    shareBtn.disabled = true;
+    try {
+      const how = await shareResult(r, await api.pose(id).catch(() => null));
+      if (how === 'downloaded') toast('Saved your score card. Share it anywhere!');
+    } catch (e) { toast(`Couldn't make the card: ${e.message}`, 'bad'); }
+    shareBtn.disabled = false;
+  } }, '📤 Share my score');
   const node = el('div', { class: 'results' },
     el('p', { class: 'eyebrow' }, r.title),
     scoreCard(r),
+    r.newBadges?.length ? el('section', { class: 'new-badges' },
+      el('h2', {}, r.newBadges.length > 1 ? `🎖 ${r.newBadges.length} new badges!` : '🎖 New badge!'),
+      el('div', { class: 'badge-row' }, ...r.newBadges.map((b) => el('div', { class: 'badge earned' }, el('span', { class: 'b-icon' }, b.icon), el('b', {}, b.name), el('small', {}, b.desc)))),
+      el('a', { class: 'muted small', href: '#/progress' }, 'See all badges →')) : null,
     coach,
     reportSlot,
     boardSlot,
     el('div', { class: 'result-actions' },
       el('a', { class: 'btn primary', href: `#/battle/${id}` }, 'Run it back'),
+      shareBtn,
       el('a', { class: 'btn ghost', href: `#/learn/${id}` }, 'Back to the studio'),
     ),
   );
@@ -152,7 +169,7 @@ export function resultsScreen(id) {
     node,
     mounted() {
       beep(880, 0.12, 0.06, 'triangle');
-      if (r.rank === 'S' || r.rank === 'A') confetti();
+      if (r.rank === 'S' || r.rank === 'A' || r.newBadges?.length) confetti();
       coachMe();
       leaderboard();
     },

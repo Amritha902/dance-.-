@@ -27,6 +27,9 @@ Built for the Devpost **Build With AI: Basics** hackathon with the Devpost Learn
 | **AI coach** | After the song, a Claude agent reads your run step by step, recalls your earlier attempts, pulls cues from a teaching library, and gives you one plan: which step, what to fix in your body, what speed, and what improved. **Drill** opens that step at that speed. |
 | **Trending** | At least 10 dances trending now, each traced back to its **original choreography** (not covers, tutorials or mirrored re-uploads), showing who decided (Claude or rules) and why. **Trending near you** picks your country from your device's time zone (no location prompt), or choose from 13 countries. |
 | **Menu** | A ☰ menu with everything one tap away: Dance live, Trending now, Trending near you, My routines, Party, My progress, How it works, Get the app, Settings. Phones get a bottom bar: Home · Live · Trending · Party · Menu. |
+| **Share my score** | One tap turns your result into a picture (rank, score, PERFECT…MISS, your dance as the stickman) and opens your phone's share sheet for WhatsApp or Instagram, or downloads it on a laptop. |
+| **Badges** | 12 badges to earn (First steps, Flawless rank S, Combo 10, a 7-day streak, 100 kcal, Explorer, Party starter…). They pop up on the results the moment you earn them, and My progress shows the whole wall. |
+| **Daily challenge** | Home picks one routine a day (the same for everyone) and shows the score to beat. |
 | **Workout** | Live calorie estimate, intensity, daily streak and lifetime totals. |
 | **Party** | Friends on their own phones join a 4-letter room. Everyone counts in to the same instant, with a live room leaderboard. |
 | **iPhone and Android app** | An installable app (PWA) from the same code: add it to the Home Screen and it opens full-screen with its own icon. Phone-first layout with a bottom tab bar, safe areas for the notch, and a tap to start that unlocks sound on iPhone. |
@@ -87,7 +90,7 @@ Phones on the same Wi-Fi can open the computer's address (the room screen shows 
 npm test
 ```
 
-100 tests, run with Node's built-in runner, cover:
+104 tests, run with Node's built-in runner, cover:
 - link parsing, uploads, pose caching and path safety;
 - true mirroring, interpolation and framing;
 - step cutting, hookstep detection and tempo on routines with known answers;

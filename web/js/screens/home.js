@@ -5,6 +5,7 @@ import { api, mediaUrl } from '../api.js';
 import { readLog, streakFrom } from '../fitness.js';
 import { scoutSection } from './scout.js';
 import { searchField, EXAMPLES } from './search.js';
+import { dailyPick } from '../badges.js';
 
 export function routineCard(r) {
   return el('a', { class: 'card', href: `#/learn/${r.id}` },
@@ -93,7 +94,21 @@ export function homeScreen() {
   const library = el('div', { class: 'grid' });
   const librarySection = el('section', { class: 'section', hidden: true },
     el('h2', {}, 'Your routines'), library);
-  api.library().then((list) => {
+  const challenge = el('section', { class: 'daily', hidden: true });
+  api.library().then(async (list) => {
+    const today = dailyPick(list);
+    if (today) {
+      const top = (await api.scores(today.id).catch(() => []))[0];
+      challenge.replaceChildren(
+        el('div', { class: 'daily-text' },
+          el('small', {}, `📅 Today's challenge · ${new Date().toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' })}`),
+          el('h2', {}, today.title),
+          el('p', { class: 'muted small' }, top ? `Score to beat: ${top.score.toLocaleString()} by ${top.name} (${top.accuracy}%)` : 'Nobody has danced it yet. Set the first score!')),
+        el('div', { class: 'live-actions' },
+          el('button', { class: 'btn primary', onclick: () => { sessionStorage.removeItem('mimic.battleRegion'); location.hash = `#/battle/${today.id}`; } }, '🔴 Take the challenge'),
+          el('a', { class: 'btn ghost', href: `#/learn/${today.id}` }, 'Learn it first')));
+      challenge.hidden = false;
+    }
     if (!list.length) return;
     library.append(...list.map(routineCard));
     librarySection.hidden = false;
@@ -113,6 +128,7 @@ export function homeScreen() {
       el('div', { class: 'or-row' }, el('span', {}, 'or'), uploadBtn, file,
         el('small', { class: 'muted' }, 'mp4, webm or mov, up to 200 MB.')),
     ),
+    challenge,
     statsStrip(),
     howItWorks(),
     librarySection,

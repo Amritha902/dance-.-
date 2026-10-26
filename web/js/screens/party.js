@@ -134,7 +134,7 @@ export async function partyPlayScreen(id) {
       party.send({ type: 'score', score, combo });
     },
     onFinish: (result) => {
-      try { sessionStorage.setItem('mimic.result', JSON.stringify(result)); } catch { /* fine */ }
+      try { sessionStorage.setItem('mimic.result', JSON.stringify({ ...result, party: true })); } catch { /* fine */ }
       party.send({ type: 'done', score: result.score, accuracy: result.accuracy });
       location.hash = '#/party';
     },
