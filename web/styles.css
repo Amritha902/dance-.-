@@ -468,3 +468,25 @@ select.field { appearance: auto; }
 .daily small { font-weight: 700; color: var(--accent-deep); letter-spacing: .02em; }
 .daily h2 { font-size: 26px; margin: 2px 0; }
 .result-actions { flex-wrap: wrap; }
+
+/* ---------- profile & history ---------- */
+.acct-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 16px; }
+.acct-card { display: grid; gap: 10px; align-content: start; background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 20px; box-shadow: var(--shadow); }
+.acct-card h2 { font-size: 22px; }
+.code-input { font-family: ui-monospace, Menlo, monospace; letter-spacing: .08em; text-transform: uppercase; }
+.acct-code { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 14px 18px; }
+.acct-code.fresh { background: var(--accent-wash); border-color: var(--accent); }
+.code-row { display: flex; align-items: center; gap: 8px; }
+.code-text { font: 700 20px ui-monospace, Menlo, monospace; letter-spacing: .06em; }
+.acct-body { display: grid; gap: 16px; margin-top: 16px; }
+.history { display: grid; }
+.hist-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 6px; border-bottom: 1px solid var(--line); }
+.hist-row:hover { background: var(--paper-2); }
+.h-main { display: grid; min-width: 0; } .h-main b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.h-main small, .h-num small { color: var(--ink-soft); font-size: 12px; }
+.h-num { display: grid; justify-items: end; font-variant-numeric: tabular-nums; }
+.rank-chip { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font: 700 22px Georgia, serif; background: var(--paper-2); }
+.rank-chip.r-S { background: linear-gradient(135deg, #ffd66b, #f0a92c); } .rank-chip.r-A { background: linear-gradient(135deg, #ffb39b, #ff5a36); color: #fff; }
+.btn.danger { color: var(--accent-deep); border-color: #f2c3b8; }
+.history-note { text-align: center; margin-top: -8px; }
+@media (max-width: 700px) { .acct-grid { grid-template-columns: 1fr; } }

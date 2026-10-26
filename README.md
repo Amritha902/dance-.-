@@ -27,6 +27,7 @@ Built for the Devpost **Build With AI: Basics** hackathon with the Devpost Learn
 | **AI coach** | After the song, a Claude agent reads your run step by step, recalls your earlier attempts, pulls cues from a teaching library, and gives you one plan: which step, what to fix in your body, what speed, and what improved. **Drill** opens that step at that speed. |
 | **Trending** | At least 10 dances trending now, each traced back to its **original choreography** (not covers, tutorials or mirrored re-uploads), showing who decided (Claude or rules) and why. **Trending near you** picks your country from your device's time zone (no location prompt), or choose from 13 countries. |
 | **Menu** | A ☰ menu with everything one tap away: Dance live, Trending now, Trending near you, My routines, Party, My progress, How it works, Get the app, Settings. Phones get a bottom bar: Home · Live · Trending · Party · Menu. |
+| **Profile & history** | Create a profile with just a name and get a private sign-in code (no email, no password). Every dance you finish is saved: song, rank, score, accuracy, calories, date. Sign in on another phone with the code, see your streak, badges and personal bests, rename, or delete everything. Stored in Postgres when `DATABASE_URL` is set, else in files. |
 | **Share my score** | One tap turns your result into a picture (rank, score, PERFECT…MISS, your dance as the stickman) and opens your phone's share sheet for WhatsApp or Instagram, or downloads it on a laptop. |
 | **Badges** | 12 badges to earn (First steps, Flawless rank S, Combo 10, a 7-day streak, 100 kcal, Explorer, Party starter…). They pop up on the results the moment you earn them, and My progress shows the whole wall. |
 | **Daily challenge** | Home picks one routine a day (the same for everyone) and shows the score to beat. |
@@ -55,7 +56,7 @@ Phones only allow the camera over **HTTPS**. To try it from your computer, share
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Amritha902/dance-.-)
 
-`render.yaml` sets everything up; Render asks for the two optional keys. You get an `https://` link, which is what phones need for the camera. On the free plan the app sleeps when idle (the first visit then takes about a minute) and uploaded clips are wiped on restart.
+`render.yaml` sets everything up: the app, a Postgres database for profiles and history, and auto-deploy on every push. Render asks for the two optional keys. The installed app updates itself too: it checks for a new version on every launch and reloads once when one is live. You get an `https://` link, which is what phones need for the camera. On the free plan the app sleeps when idle (the first visit then takes about a minute) and uploaded clips are wiped on restart.
 
 ## Run it
 
@@ -73,6 +74,7 @@ Optional settings: export them in your shell, or put them in `.env` and run `nod
 | `ANTHROPIC_API_KEY` | Turns on the AI coach and Claude's Trend Scout picks. Without it, the rule-based versions run, labelled. |
 | `YOUTUBE_API_KEY` | A free YouTube Data API v3 key. Trend Scout then reads trends through YouTube's official API. |
 | `MIMIC_YTDLP=on` | Opt in to YouTube **link downloads** and keyless Trend Scout search via yt-dlp. **Off by default (compliance mode):** you learn from uploaded clips, and Trend Scout uses the official API key above. |
+| `DATABASE_URL` | A Postgres connection string for profiles and dance history (Render's blueprint creates one). Without it, history is kept in files under `data/`. |
 | `MIMIC_COACH=offline` | Force the rule-based coach and picker. |
 | `PORT` | Default 4173. |
 
@@ -90,7 +92,7 @@ Phones on the same Wi-Fi can open the computer's address (the room screen shows 
 npm test
 ```
 
-104 tests, run with Node's built-in runner, cover:
+109 tests (one runs only against a real Postgres, with `TEST_DATABASE_URL`), run with Node's built-in runner, cover:
 - link parsing, uploads, pose caching and path safety;
 - true mirroring, interpolation and framing;
 - step cutting, hookstep detection and tempo on routines with known answers;

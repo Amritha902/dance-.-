@@ -8,6 +8,7 @@ import { recordWorkout } from '../fitness.js';
 import { prefs, toast } from '../dom.js';
 import { recordRun } from '../badges.js';
 import { shareResult } from '../share.js';
+import { signedIn, saveRunToHistory } from '../profile.js';
 
 export function readResult(id) {
   try {
@@ -104,6 +105,17 @@ export function resultsScreen(id) {
   const reportSlot = el('div');
   const boardSlot = el('div');
 
+  const historyNote = el('p', { class: 'history-note muted small' });
+  if (signedIn()?.code) {
+    if (r.savedToHistory) historyNote.textContent = '✓ Saved to your history.';
+    else saveRunToHistory(r).then(() => {
+      r.savedToHistory = true;
+      try { sessionStorage.setItem('mimic.result', JSON.stringify(r)); } catch { /* fine */ }
+      historyNote.replaceChildren('✓ Saved to your history. ', el('a', { href: '#/account' }, 'See it →'));
+    }).catch((e) => { historyNote.textContent = `Couldn't save to your history: ${e.message}`; });
+  } else {
+    historyNote.replaceChildren(el('a', { href: '#/account' }, 'Create a profile'), ' to keep every dance in your history, on any device.');
+  }
   const shareBtn = el('button', { class: 'btn ghost', onclick: async () => {
     shareBtn.disabled = true;
     try {
@@ -115,6 +127,7 @@ export function resultsScreen(id) {
   const node = el('div', { class: 'results' },
     el('p', { class: 'eyebrow' }, r.title),
     scoreCard(r),
+    historyNote,
     r.newBadges?.length ? el('section', { class: 'new-badges' },
       el('h2', {}, r.newBadges.length > 1 ? `🎖 ${r.newBadges.length} new badges!` : '🎖 New badge!'),
       el('div', { class: 'badge-row' }, ...r.newBadges.map((b) => el('div', { class: 'badge earned' }, el('span', { class: 'b-icon' }, b.icon), el('b', {}, b.name), el('small', {}, b.desc)))),

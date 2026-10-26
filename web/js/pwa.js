@@ -29,7 +29,29 @@ export async function promptInstall() {
   return outcome === 'accepted';
 }
 
+// Auto-update: check for a new version on every launch and whenever the app
+// comes back to the foreground; when a new one takes over, reload once so the
+// whole app is on the same version.
 export function registerServiceWorker() {
   if (!('serviceWorker' in navigator) || !window.isSecureContext) return;
-  addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController || reloading) return;
+    reloading = true;
+    sessionStorage.setItem('mimic.updated', '1');
+    location.reload();
+  });
+  addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' });
+      reg.update().catch(() => {});
+      document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+    } catch { /* the app still works without it */ }
+  });
+}
+export function takeUpdatedFlag() {
+  const was = sessionStorage.getItem('mimic.updated') === '1';
+  sessionStorage.removeItem('mimic.updated');
+  return was;
 }

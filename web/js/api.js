@@ -32,4 +32,16 @@ export const api = {
   postScore: (id, entry) => call('POST', `/api/routines/${id}/scores`, entry),
 };
 
+// Signed-in calls carry the profile's sign-in code.
+const auth = (code) => ({ Authorization: `Bearer ${code}` });
+export const account = {
+  create: (name) => call('POST', '/api/profile', { name }),
+  signIn: (code) => call('POST', '/api/session', { code }),
+  me: (code) => call('GET', '/api/me', undefined, auth(code)),
+  runs: (code, limit = 100) => call('GET', `/api/me/runs?limit=${limit}`, undefined, auth(code)),
+  saveRun: (code, run) => call('POST', '/api/me/runs', { run }, auth(code)),
+  rename: (code, name) => call('PATCH', '/api/me', { name }, auth(code)),
+  remove: (code) => call('DELETE', '/api/me', undefined, auth(code)),
+};
+
 export const mediaUrl = (id) => `/media/${id}`;

@@ -2,8 +2,8 @@
 // { node, destroy? }; the router swaps them and tears the old one down
 // (stopping cameras, animation loops and timers).
 
-import { el, $ } from './dom.js';
-import { registerServiceWorker } from './pwa.js';
+import { el, $, toast } from './dom.js';
+import { registerServiceWorker, takeUpdatedFlag } from './pwa.js';
 import { homeScreen } from './screens/home.js';
 import { preparingScreen } from './screens/preparing.js';
 import { studioScreen } from './screens/studio.js';
@@ -15,6 +15,7 @@ import { trendingScreen } from './screens/trending.js';
 import { liveScreen, libraryScreen, progressScreen, howScreen } from './screens/more.js';
 import { searchScreen } from './screens/search.js';
 import { watchScreen } from './screens/watch.js';
+import { accountScreen } from './screens/account.js';
 
 const routes = [
   [/^#?\/?$/, () => homeScreen()],
@@ -34,6 +35,7 @@ const routes = [
   [/^#\/search$/, () => searchScreen('')],
   [/^#\/search\/(.+)$/, (q) => searchScreen(decodeURIComponent(q))],
   [/^#\/watch\/([\w-]{11})$/, (id) => watchScreen(id)],
+  [/^#\/account$/, () => accountScreen()],
 ];
 
 export function registerRoute(pattern, make) {
@@ -48,6 +50,7 @@ let current = null;
 // like a native app) whose last tab opens the full menu.
 const MENU = [
   ['Home', '#/', '⌂'],
+  ['My profile & history', '#/account', '👤'],
   ['Search a song', '#/search', '🔎'],
   ['Dance live', '#/live', '🔴'],
   ['Trending now', '#/trending', '🔥'],
@@ -120,5 +123,6 @@ async function render() {
 
 addEventListener('hashchange', render);
 registerServiceWorker();
+if (takeUpdatedFlag()) setTimeout(() => toast('✨ Mimic just updated to the newest version.'), 600);
 // Later modules register routes before the first render.
 queueMicrotask(render);

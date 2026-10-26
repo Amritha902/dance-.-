@@ -48,6 +48,7 @@ export function coachRouter() {
     res.json({
       coach: { enabled: coachEnabled(), model: COACH_MODEL, hasKey: !!process.env.ANTHROPIC_API_KEY },
       links: ytdlpAllowed(),
+      history: process.env.DATABASE_URL ? 'database' : 'files',
       // Addresses other devices on the same network can reach this server at.
       lan: Object.values(networkInterfaces()).flat()
         .filter((n) => n && n.family === 'IPv4' && !n.internal).map((n) => n.address),
